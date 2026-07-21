@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Manager</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <section id="list-view">
+            <header>
+                <h2>Events</h2>
+                <button id = "btn-new" class="btn btn-primary">+New</button>
+            </header>
+
+            <div class = "events-grid" id = "events-grid">
+                <!-- Event cards will be dynamically inserted here -->
+
+            </div>
+        </section>
+
+        <section id="form-view" class = "hidden">
+            <header>
+                <h1>Create/Edit Event</h1>
+            </header>
+            <div class="form-container">
+                <form id="eventForm">
+
+                    <input type="hidden" id="event-id" />
+
+                    <div class="form-group">
+                        <label for="eventName">Event Name:</label>
+                        <input type="text" id="eventName" name="eventName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventDescription">Event Description:</label>
+                        <textarea id="eventDescription" name="eventDescription"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventDate">Event Date:</label>
+                        <input type="date" id="eventDate" name="eventDate" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id = "btn-cancel" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" id = "btn-submit"class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+
+</html>
