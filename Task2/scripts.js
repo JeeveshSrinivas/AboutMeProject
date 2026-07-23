@@ -1,10 +1,4 @@
-let events = [
-  { id: 1, name: "Project Kickoff", description: "Past meeting", date: "2025-01-15T10:00" },
-  { id: 2, name: "Team Lunch", description: "Happening today!", date: "2026-07-21T12:30" },
-  { id: 3, name: "Annual Conference", description: "Future event", date: "2027-09-20T09:00" }
-];
-
-
+let events = [];
 let editingEventId = null;
 
 let listView = document.getElementById("list-view");
@@ -28,16 +22,21 @@ function getDateCategory(dateString) {
   let eventDate = new Date(dateString);
 
   // We set the time to 00:00:00 for both so we only compare the calendar days
-  today.setHours(0, 0, 0, 0);
-  eventDate.setHours(0, 0, 0, 0);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const eventStart = new Date(dateString);
+  eventStart.setHours(0, 0, 0, 0);
 
   if (eventDate < today) {
     return "card-past";    // Red CSS class
-  } else if (eventDate.getTime() === today.getTime()) {
-    return "card-today";   // Blue CSS class
-  } else {
-    return "card-future";  // Purple CSS class
   }
+
+  else if (eventStart.getTime() === todayStart.getTime()) {
+    return "card-today";   // Blue CSS class
+  }
+
+  return "card-future";  // Purple CSS class
 }
 
 // Draws all event cards on the screen
@@ -45,46 +44,48 @@ function renderEvents() {
   // Clear the existing cards first
   eventsGrid.innerHTML = "";
 
-  // Loop through every event in our list
-  for (let i = 0; i < events.length; i++) {
-    let event = events[i];
+  if (events.length === 0) {
+    eventsGrid.innerHTML = "<p style='grid-column: 1/-1; color: #64748b;'>No events scheduled yet. Click '+ New' to create one!</p>";
+    return;
+  }
 
-    // Create a new div element for the card
-    let card = document.createElement("div");
-    
-    // Assign the CSS classes (e.g. "event-card card-past")
-    let categoryClass = getDateCategory(event.date);
-    card.className = "event-card " + categoryClass;
+  // 2. Use .map() to transform each event object into an HTML string, then .join("") into one string
+  eventsGrid.innerHTML = events.map(event => {
+    const categoryClass = getDateCategory(event.date);
 
-    // Put the event title and date inside the card
-    card.innerHTML = "<h3>" + event.name + "</h3><p class='date'>" + event.date.replace("T", " ") + "</p>";
-
-    // When this card is clicked, open the form to edit this event
-    card.addEventListener("click", function() {
-      openFormForEdit(event);
+    // Format date string for clean display
+    const formattedDate = new Date(event.date).toLocaleString([], {
+      dateStyle: "medium",
+      timeStyle: "short"
     });
 
-    
-    eventsGrid.appendChild(card);
-  }
+    // Return the HTML card template for this event
+    return `
+      <div class="event-card ${categoryClass}" data-id="${event.id}">
+        <h3>${event.name}</h3>
+        <p class="date">${formattedDate}</p>
+      </div>
+    `;
+  }).join("");
 }
 
 function openFormForCreate() {
-  editingEventId = null;        
-  eventForm.reset();             
-  btnSubmit.textContent = "Add"; 
+  editingEventId = null;
+  eventForm.reset();
+  btnSubmit.textContent = "Add";
   listView.classList.add("hidden");
   formView.classList.remove("hidden");
 }
 
 
 function openFormForEdit(event) {
-  editingEventId = event.id;     
- 
+  editingEventId = event.id;
+
+  inputName.value = event.name;
   inputDescription.value = event.description;
   inputDate.value = event.date;
 
-  btnSubmit.textContent = "Save"; 
+  btnSubmit.textContent = "Save";
   listView.classList.add("hidden");
   formView.classList.remove("hidden");
 }
@@ -93,33 +94,50 @@ function showMainPage() {
   formView.classList.add("hidden");
   listView.classList.remove("hidden");
   eventForm.reset();
+
+  renderEvents();
 }
 
-eventForm.addEventListener("submit", function(e) {
-  e.preventDefault(); 
+
+
+eventForm.addEventListener("submit", function (e) {
+  e.preventDefault();
 
   if (editingEventId !== null) {
-    for (let i = 0; i < events.length; i++) {
-      if (events[i].id === editingEventId) {
-        events[i].name = inputName.value;
-        events[i].description = inputDescription.value;
-        events[i].date = inputDate.value;
-      }
+    const index = events.findIndex(evt => evt.id === editingEventId);
+    if (index !== -1) {
+      events[index] = {
+        id: editingEventId,
+        name: inputName.value,
+        description: inputDescription.value,
+        date: inputDate.value
+      };
     }
   } else {
     let newEvent = {
-      id: Date.now(), 
+      id: Date.now(),
       name: inputName.value,
       description: inputDescription.value,
       date: inputDate.value
     };
     events.push(newEvent);
   }
-
- 
-  renderEvents();
   showMainPage();
 });
 btnNew.addEventListener("click", openFormForCreate);
 btnCancel.addEventListener("click", showMainPage);
-renderEvents();
+showMainPage();
+
+// Click handler for ALL cards using Event Delegation
+eventsGrid.addEventListener("click", function(e) {
+  const card = e.target.closest(".event-card");
+
+  if (card) {
+    const cardId = Number(card.dataset.id);
+    const selectedEvent = events.find(evt => evt.id === cardId);
+    
+    if (selectedEvent) {
+      openFormForEdit(selectedEvent);
+    }
+  }
+});
