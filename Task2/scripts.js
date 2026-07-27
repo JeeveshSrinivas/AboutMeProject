@@ -28,7 +28,7 @@ function getDateCategory(dateString) {
   const eventStart = new Date(dateString);
   eventStart.setHours(0, 0, 0, 0);
 
-  if (eventDate < today) {
+  if (eventDate < todayStart) {
     return "card-past";    // Red CSS class
   }
 
