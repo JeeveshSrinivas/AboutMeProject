@@ -1,0 +1,226 @@
+/* --- Global Styles --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f0f2f5; /* Light gray page background */
+  color: #1c1e21;
+}
+
+.app-container {
+ width: 100%;
+  max-width: 100%; /* Removes the 900px cap */
+  padding: 20px 40px; /* Gives nice breathing room from the screen edges */
+  margin: 0;
+}
+
+/* --- Header --- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e1e4e8;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: #1a1a1a;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+  background-color: #007bff; /* Bright blue */
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #0069d9;
+}
+
+.btn-secondary {
+  background-color: #e4e6eb;
+  color: #4b4f56;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* --- Search Bar --- */
+.search-bar {
+  margin-bottom: 24px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 1px solid #dddfe2;
+  border-radius: 8px;
+  outline: none;
+}
+
+/* --- Event Grid --- */
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* --- Event Card (Base and Color Coding) --- */
+.event-card {
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-left: 6px solid transparent; /* Keeps left border subtle structure */
+  position: relative;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+/* --- requirement: Past Date -> 🔴 Red Background --- */
+.event-card.status-past {
+  background-color: #fce4e4; /* Light Red */
+  border-left-color: #f5c6cb;
+  color: #721c24; /* Dark Red text for readability */
+}
+
+/* --- requirement: Current Date (Today) -> 🔵 Blue Background --- */
+.event-card.status-current {
+  background-color: #e7f3ff; /* Light Blue */
+  border-left-color: #b8daff;
+  color: #0c5460; /* Dark Teal/Blue text */
+}
+
+/* --- requirement: Future Date -> 🟣 Purple Background --- */
+.event-card.status-future {
+  background-color: #f3e8fd; /* Light Purple */
+  border-left-color: #d6bdfa;
+  color: #4a148c; /* Dark Purple text */
+}
+
+/* --- Card Content styling adjustment for readability --- */
+.event-card.status-past .event-description,
+.event-card.status-past .click-hint {
+  color: #9c414d; /* Adjust description color for contrast on red */
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.event-card-header h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* Adjusted badge for solid color backgrounds */
+.badge-overlay {
+  font-size: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.event-description {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+.click-hint {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+/* --- Form Styling --- */
+.form-container {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1c1e21;
+}
+
+.form-group input, 
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #cbd5e1; /* Clear light-gray border */
+  border-radius: 8px;
+  font-size: 1rem;
+  
+  /* 🎨 Fixing visibility: Crisp white background & deep black text */
+  background-color: #ffffff !important;
+  color: #0f172a !important; /* High contrast text */
+  caret-color: #2563eb !important; /* High visibility blue cursor/blinker */
+}
+
+/* Optional: Make placeholder text easily readable */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Highlight input when clicked/focused */
+.form-group input:focus, 
+.form-group textarea:focus {
+  border-color: #2563eb;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0); /* Ensures the icon stays dark on light input backgrounds */
+  opacity: 1;
+  display: block;
+}
+
+/* For Firefox / Edge fallback support */
+input[type="datetime-local"] {
+  color-scheme: light; /* Tells browser to render built-in controls in light mode */
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
