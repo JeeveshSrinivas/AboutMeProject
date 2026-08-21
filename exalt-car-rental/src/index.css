@@ -1,0 +1,23 @@
+html, 
+body, 
+#root {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh !important;
+  background-color: #0F172A !important;
+}
+
+/* Configure our global text profile defaults */
+body {
+  color: #F8FAFC;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Ensure the wrapper stacks columns vertically without clamping widths */
+#root {
+  display: flex;
+  flex-direction: column;
+}

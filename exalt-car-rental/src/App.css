@@ -1,0 +1,66 @@
+html, 
+body, 
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  /* Force the outer background layout to match our obsidian slate theme color */
+  background-color: #0F172A !important;
+  color: #F8FAFC;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0F172A !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom premium dark scrollbar mechanics */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0F172A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border: 2px solid #0F172A;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Force smooth, beautiful hover scale matrices across all our premium catalog and admin card components */
+[data-test^="car-card-"],
+[data-test^="inventory-item-"] {
+  will-change: transform, box-shadow;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[data-test^="car-card-"]:hover,
+[data-test^="inventory-item-"]:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4) !important;
+  border-color: rgba(56, 189, 248, 0.2) !important;
+}
+
+/* Smooth modal scaling appearance adjustments */
+.modal-content {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Bootstrap Table text color override fix */
+.table {
+  --bs-table-bg: transparent !important;
+  color: #F8FAFC !important;
+}
