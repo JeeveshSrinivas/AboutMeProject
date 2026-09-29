@@ -1,14 +1,18 @@
 package com.designpatterns.payment;
 
 public class PaymentService {
-    
+
     private final PaymentMethod paymentMethod;
 
-    public PaymentService(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public PaymentService(String method) {
+        PaymentMethodFactory factory = new PaymentMethodFactory();
+        this.paymentMethod = factory.create(method);
     }
 
-    public void processPayment(double amount) {
-        paymentMethod.pay(amount);
+    public void pay(double amount) {
+
+        if (paymentMethod != null) {
+            paymentMethod.pay(amount);
+        }
     }
 }

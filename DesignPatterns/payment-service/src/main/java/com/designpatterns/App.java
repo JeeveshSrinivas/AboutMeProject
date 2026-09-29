@@ -1,23 +1,18 @@
 package com.designpatterns;
 
-
-import com.designpatterns.payment.CreditCardPayment;
-import com.designpatterns.payment.PayPalPayment;
 import com.designpatterns.payment.PaymentService;
-import com.designpatterns.payment.ApplePayPayment;
 
+public class App {
 
-public class App 
-{
-    public static void main( String[] args )
-    {
-       PaymentService creditCardPaymentService = new PaymentService(new CreditCardPayment());
-        creditCardPaymentService.processPayment(100.0);
+    public static void main(String[] args) {
 
-        PaymentService payPalPaymentService = new PaymentService(new PayPalPayment());
-        payPalPaymentService.processPayment(200.0);
+        PaymentService creditCardPaymentService = new PaymentService("CreditCard");
+        creditCardPaymentService.pay(100.00);
 
-        PaymentService applePayPaymentService = new PaymentService(new ApplePayPayment());
-        applePayPaymentService.processPayment(300.0);
+        PaymentService payPalPaymentService = new PaymentService("PayPal");
+        payPalPaymentService.pay(200.00);
+
+        PaymentService applePayPaymentService = new PaymentService("ApplePay");
+        applePayPaymentService.pay(300.00);
     }
 }

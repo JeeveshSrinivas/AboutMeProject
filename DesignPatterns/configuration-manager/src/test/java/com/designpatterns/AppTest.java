@@ -1,20 +1,40 @@
 package com.designpatterns;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-{
-    /**
-     * Rigorous Test :-)
-     */
+import static org.junit.Assert.*;
+
+public class AppTest {
+
     @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
+    public void shouldReturnSameConfigurationManagerInstance() {
+
+        ConfigurationManager manager1 =
+                ConfigurationManager.getInstance();
+
+        ConfigurationManager manager2 =
+                ConfigurationManager.getInstance();
+
+        assertSame(manager1, manager2);
+    }
+
+    @Test
+    public void shouldReturnConfigurationValueForExistingKey() {
+
+        ConfigurationManager manager =
+                ConfigurationManager.getInstance();
+
+        String value = manager.get("app.name");
+
+        assertEquals("ConfigurationManagerDemo", value);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionForMissingKey() {
+
+        ConfigurationManager manager =
+                ConfigurationManager.getInstance();
+
+        manager.get("app.invalid");
     }
 }

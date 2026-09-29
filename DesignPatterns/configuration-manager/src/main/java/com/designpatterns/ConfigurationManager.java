@@ -6,8 +6,6 @@ import java.util.Properties;
 
 public class ConfigurationManager {
 
-    private static ConfigurationManager instance;
-
     private final Properties properties;
 
     private ConfigurationManager() {
@@ -15,13 +13,13 @@ public class ConfigurationManager {
         loadConfiguration();
     }
 
+    private static class Holder {
+        private static final ConfigurationManager INSTANCE =
+                new ConfigurationManager();
+    }
+
     public static ConfigurationManager getInstance() {
-
-        if (instance == null) {
-            instance = new ConfigurationManager();
-        }
-
-        return instance;
+        return Holder.INSTANCE;
     }
 
     private void loadConfiguration() {
@@ -47,6 +45,15 @@ public class ConfigurationManager {
     }
 
     public String get(String key) {
-        return properties.getProperty(key);
+
+        String value = properties.getProperty(key);
+
+        if (value == null) {
+            throw new IllegalArgumentException(
+                    "Configuration key not found: " + key
+            );
+        }
+
+        return value;
     }
 }
