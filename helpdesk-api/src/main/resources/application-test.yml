@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:helpdesk_test;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    open-in-view: false
+
+
+  data:
+    mongodb:
+      auto-index-creation: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dGVzdC1qd3Qtc2VjcmV0LWZvci1oZWxwZGVzay1hcGktdGVzdC0yMDI2}
+    expiration: 86400000
+
+  scheduler:
+    overdue-ticket:
+      fixed-delay: 3600000
+
