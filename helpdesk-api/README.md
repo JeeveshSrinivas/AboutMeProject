@@ -1,107 +1,99 @@
-# Help Desk Ticket API
+Help Desk Ticket API
+Project Overview
+The Help Desk Ticket API is a versioned RESTful backend application
+built with Spring Boot. It provides a centralized system for registering
+users, creating and managing support tickets, assigning agents, tracking
+ticket progress, and maintaining ticket comments and activity records.
 
-## Project Overview
-
-The Help Desk Ticket API is a RESTful backend application developed using Spring Boot. It provides a centralized system for managing support tickets, assigning agents, tracking ticket progress, and maintaining activity records.
-
-The application uses Microsoft SQL Server for relational data management and MongoDB for storing comments and ticket activity events.
-
-It follows a layered architecture with separate responsibilities for controllers, services, repositories, security, and data persistence.
-
-## Key Features
-
-- User registration and authentication using JWT.
-- Role-based access control for Requesters, Agents, and Administrators.
-- Ticket creation, retrieval, assignment, and status management.
+The application uses:
+- Microsoft SQL Server for user information and current ticket
+  records.
+- MongoDB for ticket comments and activity timeline events.
+The application follows a layered architecture that separates
+controllers, services, repositories, security, configuration, and data
+persistence.
+Key Features
+- User registration and login using JWT authentication.
+- BCrypt password hashing.
+- Role-based access control for REQUESTER, AGENT, and ADMIN.
+- JWT token revocation on logout.
+- Ticket creation, retrieval, claiming, assignment, and status
+  management.
 - Ticket priority management with due-time targets.
 - Ticket comments and activity tracking.
+- Activity records that capture the authenticated employee ID and
+  role.
 - Automatic detection of overdue tickets through scheduled tasks.
 - Duplicate prevention for overdue warning events.
+- Centralized exception handling.
+- Aspect-oriented logging for important service operations.
 - REST API documentation using Swagger UI.
 - Application health monitoring using Spring Boot Actuator.
-- Aspect-oriented logging for important service operations.
-- Automated unit and integration testing.
-
-## Technology Stack
-
-- **Programming Language:** Java 21
-- **Backend Framework:** Spring Boot 4.1.2
-- **Build Tool:** Maven
-- **Relational Database:** Microsoft SQL Server
-- **NoSQL Database:** MongoDB
-- **ORM:** Spring Data JPA / Hibernate
-- **NoSQL Integration:** Spring Data MongoDB
-- **Authentication:** Spring Security and JWT
-- **API Documentation:** Springdoc OpenAPI / Swagger UI
-- **Monitoring:** Spring Boot Actuator
-- **Testing:** JUnit 5, Mockito, Spring Boot Test
-- **Version Control:** Git and GitHub
-
-## Prerequisites
-
-Ensure the following software and services are installed before running the application.
-
-- **Java Development Kit (JDK):** Java 21
-- **Microsoft SQL Server:** SQL Server 2022 or a compatible version.
-- **SQL Server Management Studio (SSMS):** For database management and SQL queries.
-- **MongoDB:** MongoDB 8.0 or a compatible version.
-- **MongoDB Compass:** For viewing and managing MongoDB databases.
-- **Git:** For cloning and managing the project repository.
-
-### Build Tool
-
-The project includes the Maven Wrapper (`mvnw` and `mvnw.cmd`). A separate Maven installation is not required. The wrapper downloads and uses the Maven version configured by the project.
-
-## Database Setup
-
-The application uses two databases:
-
-- **Microsoft SQL Server:** Stores user information and ticket records.
-- **MongoDB:** Stores ticket comments and activity events.
-
-### 1. Microsoft SQL Server Setup
-
+- Automated unit and integration tests.
+Technology Stack
+  Area                               Technology
+  Programming language               Java 21
+Backend framework                  Spring Boot 4.1.2
+Build tool                         Maven Wrapper
+Relational database                Microsoft SQL Server
+NoSQL database                     MongoDB
+ORM                                Spring Data JPA / Hibernate
+NoSQL integration                  Spring Data MongoDB
+Authentication and authorization   Spring Security, JWT, JJWT
+Password hashing                   BCrypt
+API documentation                  Springdoc OpenAPI / Swagger UI
+Monitoring                         Spring Boot Actuator
+Testing                            JUnit 5, Mockito, Spring Boot Test, Testcontainers
+Version control                    Git and GitHub
+Prerequisites
+Install or prepare the following before running the application:
+- JDK 21.
+- Microsoft SQL Server 2022 or a compatible version.
+- SQL Server Management Studio (SSMS) for database management.
+- MongoDB 8.0 or a compatible version.
+- MongoDB Compass (optional, for viewing MongoDB data).
+- Docker Desktop (required for integration tests that use
+  Testcontainers).
+- Git.
+The project includes the Maven Wrapper (mvnw and mvnw.cmd), so a
+separate Maven installation is not required.
+Database Setup
+The application uses two databases.
+  Database                            Purpose
+  Microsoft SQL Server                Stores user information and current
+ticket records.
+MongoDB                             Stores ticket comments and activity
+events.
+1. Microsoft SQL Server Setup
 1. Start the SQL Server service.
 2. Open SQL Server Management Studio (SSMS).
 3. Connect to your SQL Server instance.
-4. Create a database named `HelpDeskDB`.
-
-```sql
+4. Create a database named HelpDeskDB.
 CREATE DATABASE HelpDeskDB;
-```
-
 5. Configure SQL Server authentication and create an application login.
-6. Create a database user for that login and grant the permissions required by the application.
-
-The application uses the following database configuration:
-
-- Database: `HelpDeskDB`
-- Default server: `localhost`
-- Default port: `1433`
+6. Create a database user for that login and grant the permissions
+   required by the application.
+The default local SQL Server connection uses:
+- Database: HelpDeskDB
+- Server: localhost
+- Port: 1433
 - Authentication: SQL Server Authentication
-
-The application connects using environment variables rather than hardcoded credentials.
-
-### 2. MongoDB Setup
-
+The application reads database credentials from environment variables
+rather than hardcoding them.
+2. MongoDB Setup
 1. Start the MongoDB service.
-2. Ensure MongoDB is accessible at `localhost:27017`.
-3. The application uses a database named `helpdesk`.
-4. The application stores comments in the `comments` collection and activity events in the `activities` collection.
-
+2. Ensure MongoDB is accessible at localhost:27017.
+3. The application uses a database named helpdesk.
+4. The application stores comments in the comments collection and
+   activity events in the activities collection.
 Default MongoDB connection URI:
-
-```text
 mongodb://localhost:27017/helpdesk
-```
+Required Activity Index
+A unique partial index on the activities collection prevents duplicate
+WARNING activity events for the same ticket.
 
-#### Required Activity Index
-
-The `activities` collection uses a unique partial index to prevent duplicate overdue warning events for the same ticket.
-
-If the index has not already been created, execute the following command in MongoDB Compass or the MongoDB shell:
-
-```javascript
+If the index has not already been created, execute this command in
+MongoDB Compass or the MongoDB shell:
 db.activities.createIndex(
     { ticketId: 1, action: 1 },
     {
@@ -110,304 +102,241 @@ db.activities.createIndex(
         partialFilterExpression: { action: "WARNING" }
     }
 );
-```
+This index applies only to documents whose action is WARNING.
+Environment Configuration
+The application uses environment variables for database credentials, JWT
+security settings, and profile-specific configuration.
 
-This index ensures that a ticket cannot have multiple WARNING activity records.
+Do not hardcode database passwords or JWT secrets in application
+configuration files or commit them to Git.
+Required Environment Variables
+  Variable                            Description
+  SPRING_PROFILES_ACTIVE            Activates the application profile.
+Use local for local development.
 
-## Environment Configuration
+  DB_USERNAME                       SQL Server application username.
 
-The application uses environment variables to manage database credentials, JWT security settings, and environment-specific configuration.
+  DB_PASSWORD                       SQL Server application password.
+JWT_SECRET                        Base64-encoded secret used to sign
+JWTs. It must decode to at least 32
+bytes.
+Optional Environment Variables
+  Variable                Description             Default
+  DB_URL                SQL Server JDBC         Local SQL Server connection configured
+connection URL.         by the application
 
-Do not hardcode passwords, database credentials, or JWT secrets in the application configuration files or commit them to Git.
+  MONGODB_URI           MongoDB connection URI. mongodb://localhost:27017/helpdesk
+JWT_EXPIRATION        JWT access-token        86400000 (24 hours)
+lifetime in
+milliseconds.
+Windows PowerShell Configuration
+Open PowerShell in the helpdesk-api project directory.
 
-### Required Environment Variables
-
-SPRING_PROFILES_ACTIVE: Activates the application profile.
-DB_USERNAME: SQL Server application username.
-DB_PASSWORD: SQL Server application password.
-JWT_SECRET: Base64-encoded secret used for JWT signing.
-
-### Optional Environment Variables
-
-DB_URL: SQL Server JDBC connection URL.
-Default: Local SQL Server connection.
-MONGODB_URI: MongoDB connection URI.
-Default: mongodb://localhost:27017/helpdesk
-
-### Windows PowerShell Configuration
-
-Open PowerShell in the `helpdesk-api` project directory.
-
-Set the local profile:
-
-```powershell
+Activate the local profile:
 $env:SPRING_PROFILES_ACTIVE = "local"
-```
-
 Set the SQL Server credentials:
-
-```powershell
 $env:DB_USERNAME = "helpdesk_app"
 $env:DB_PASSWORD = Read-Host "Enter SQL Server password"
-```
-
 Generate a secure Base64-encoded JWT secret:
-
-```powershell
 $bytes = New-Object byte[] 32
 [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
 $env:JWT_SECRET = [Convert]::ToBase64String($bytes)
-```
+Set the JWT token lifetime:
+$env:JWT_EXPIRATION = "86400000"
+The default token lifetime is 86,400,000 milliseconds (24 hours).
 
-The application validates the required configuration during startup. It will fail safely if the required database password or JWT secret is missing or invalid.
+The application validates required configuration during startup. It will
+fail to start if required configuration, such as the database password
+or JWT secret, is missing or invalid.
+Note: These environment variables apply only to the current
+PowerShell session. Configure them again when opening a new terminal.
+Use the same JWT secret while running the application if you need
+tokens issued by that running instance to remain valid.
 
-**Note:** These environment variables apply only to the current PowerShell session. If a new terminal is opened, configure them again.
-
-## Build and Run
-
-Make sure SQL Server and MongoDB services are running and the required environment variables are configured before starting the application.
-
-### 1. Compile the Application
-
-From the project root directory, execute:
-
-```powershell
+Build and Run
+Before starting the application:
+- Ensure SQL Server and MongoDB services are running.
+- Configure the required environment variables in the current
+  PowerShell session.
+- Ensure the HelpDeskDB database exists.
+Run the commands below from the helpdesk-api project directory.
+1. Compile the Application
 .\mvnw.cmd clean compile
-```
-
-This command cleans previous build files and compiles the application source code.
-
-### 2. Run Automated Tests
-
-Execute:
-
-```powershell
+This removes previous build output and compiles the application source
+code.
+2. Run Automated Tests
+Docker Desktop must be running because the integration tests use
+Testcontainers to start MongoDB.
 .\mvnw.cmd clean verify
-```
-
-This command compiles the application, runs the automated tests, and verifies the build.
-
-### 3. Start the Application
-
-To run the application using the Maven Wrapper:
-
-```powershell
+This command builds the application, executes the automated tests, and
+verifies the Maven build.
+3. Start the Application
 .\mvnw.cmd spring-boot:run
-```
-
-Once the application starts successfully, it will be available at:
-
-```text
+The application uses the profile selected through
+SPRING_PROFILES_ACTIVE. With the local profile configured, the API
+runs at:
 http://localhost:8081
-```
-
-### 4. Create an Executable JAR
-
-To package the application:
-
-```powershell
+4. Create an Executable JAR
 .\mvnw.cmd clean package
-```
-
-The executable JAR file will be generated inside the `target` directory.
-
-### 5. Run the Executable JAR
-
-After packaging, identify the generated executable JAR inside the `target` directory and run it:
-
-```powershell
+The executable JAR is generated inside the target directory.
+5. Run the Executable JAR
+Identify the generated executable JAR inside target and run:
 java -jar target/<generated-jar-name>.jar
-```
+Replace <generated-jar-name> with the actual JAR filename.
 
-Replace `<generated-jar-name>` with the actual JAR filename.
+Make sure the required environment variables are configured in the
+terminal before starting the JAR.
+6. Stop the Application
+Press Ctrl + C in the terminal running the application.
 
-### 6. Stop the Application
-
-Press `Ctrl + C` in the terminal to stop the application.
-
-The application uses graceful shutdown to allow active requests to complete and close its database resources cleanly.
-
-## API Documentation and Health Monitoring
-
-### 1. Swagger UI
-
-The application provides interactive API documentation using Swagger UI.
-
-After starting the application, open the following URL in your browser:
-
-```text
+The application is configured for graceful shutdown so it can finish
+active requests and close resources cleanly.
+API Documentation and Health Monitoring
+1. Swagger UI
+After starting the application, open:
 http://localhost:8081/swagger-ui/index.html
-```
-
 Swagger UI allows users to:
-
 - View available REST API endpoints.
-- Inspect HTTP methods and request parameters.
-- Understand request and response payloads.
-- Execute API requests directly from the browser.
-- Authorize protected endpoints using JWT authentication.
-
-#### JWT Authentication
-
-1. Register a user or log in using the appropriate API endpoint.
-2. Obtain the JWT access token from the login response.
-3. Click the **Authorize** button in Swagger UI.
+- Inspect HTTP methods, request parameters, and request bodies.
+- Review documented response codes.
+- Execute API requests from the browser.
+- Authorize protected endpoints using JWT Bearer authentication.
+Using JWT Authentication in Swagger
+1. Register a user or log in using the appropriate authentication
+   endpoint.
+2. Copy the access token returned by the login response.
+3. Click Authorize in Swagger UI.
 4. Enter the access token in the Bearer authentication field.
-5. Click **Authorize** to access protected endpoints.
-
-### 2. Actuator Health Monitoring
-
-Spring Boot Actuator provides application health information.
-
-Open the following URL:
-
-```text
-http://localhost:8081/actuator/health
-```
-
-The health endpoint provides information about the application's operational status and configured database connections.
-
+5. Click Authorize.
+6. Execute protected endpoints.
+Use the access token itself in the Bearer field unless the Swagger UI
+explicitly asks for the complete Bearer prefix.
+2. Actuator Health Monitoring
 The application exposes the following Actuator endpoints:
 
-- `/actuator/health` – Checks application and dependency health.
-- `/actuator/info` – Provides application information.
+  Endpoint             Purpose
+  /actuator/health   Checks application health.
+/actuator/info     Provides application information.
 
-These endpoints can be used to verify whether the application and its database connections are operational.
-
-
-## Business Workflow and Application Functionality
-
-### 1. User Roles
-
-The application supports three user roles:
-
-- **REQUESTER**
-  - Creates support tickets.
-  - Views their own tickets.
-  - Follows ticket progress.
-  - Adds comments and reviews ticket activity.
-  - Closes tickets after resolution.
-
-- **AGENT**
-  - Views available tickets.
-  - Claims unassigned tickets.
-  - Works on assigned tickets.
-  - Updates ticket status.
-  - Adds comments and records progress.
-
-- **ADMIN**
-  - Performs administrative ticket operations.
-  - Assigns tickets to agents.
-  - Views tickets across the system.
-  - Manages privileged user creation.
-
-### 2. Ticket Lifecycle
-
-Tickets follow a controlled workflow:
-
-`OPEN → IN_PROGRESS → RESOLVED → CLOSED`
-
+Open the health endpoint at:
+http://localhost:8081/actuator/health
+The exact details returned by the health endpoint depend on the
+application's Actuator configuration and health contributors.
+Business Workflow and Application Functionality
+1. User Roles
+The application supports three roles.
+REQUESTER
+- Registers an account and receives the REQUESTER role.
+- Creates support tickets.
+- Views tickets subject to ownership rules.
+- Follows ticket progress.
+- Adds comments and reviews ticket activity.
+- Closes tickets after resolution.
+AGENT
+- Views tickets available to agents.
+- Claims eligible unassigned tickets.
+- Works on assigned tickets.
+- Updates ticket status according to the workflow.
+- Adds comments and records progress.
+ADMIN
+- Performs administrative ticket operations.
+- Assigns tickets to agents.
+- Views tickets across the system, subject to implemented access
+  rules.
+- Creates privileged AGENT or ADMIN users.
+Self-registration does not allow a user to choose a privileged role. New
+self-registered users are assigned REQUESTER. Privileged user creation
+is restricted to an authenticated administrator.
+2. Ticket Lifecycle
+Tickets follow this workflow:
+OPEN → IN_PROGRESS → RESOLVED → CLOSED
 The application enforces the following rules:
-
-- A newly created ticket starts with `OPEN` status.
+- A newly created ticket starts with OPEN status.
 - An eligible agent can claim an unassigned ticket.
-- Only the assigned agent can move a ticket from `OPEN` to `IN_PROGRESS`.
-- Only the assigned agent can move a ticket from `IN_PROGRESS` to `RESOLVED`.
-- The requester can move a resolved ticket to `CLOSED`.
-- Invalid, skipped, or reversed status transitions are not permitted.
+- Only the assigned agent can move a ticket from OPEN to
+  IN_PROGRESS.
+- Only the assigned agent can move a ticket from IN_PROGRESS to
+  RESOLVED.
+- The requester can move a resolved ticket to CLOSED.
+- Invalid, skipped, or reversed status transitions are rejected.
+A valid JWT authenticates the caller; it does not bypass the existing
+role, ownership, assignment, or workflow checks.
+3. Ticket Priority and Due-Time Targets
+Each ticket receives a due-time target based on its priority.
 
-### 3. Ticket Priority and Due-Time Targets
-
-Each ticket is assigned a due-time target based on its priority.
-
-- **HIGH:** 4 hours
-- **MEDIUM:** 24 hours
-- **LOW:** 72 hours
+  Priority     Due-time target
+  HIGH               4 hours
+MEDIUM            24 hours
+LOW               72 hours
 
 The due time is calculated when the ticket is created.
-
-### 4. Comments and Activity Tracking
-
+4. Comments and Activity Tracking
 - Ticket comments are stored in MongoDB.
-- Ticket activity events are maintained in MongoDB.
-- Important actions, such as ticket creation, claiming, assignment, and status changes, are recorded as activity events.
-- Activity records provide a timeline of important ticket operations.
-
-### 5. Overdue Ticket Monitoring
-
-The application includes a scheduled task that periodically checks unresolved tickets.
-
-- Identifies overdue tickets with `OPEN` or `IN_PROGRESS` status.
-- Records a `WARNING` activity event for an overdue ticket.
-- Prevents duplicate warning events for the same ticket.
-- Does not automatically change the ticket status.
-- Handles MongoDB write failures without terminating the scheduled task, allowing a later scan to retry.
-
-## Testing and Verification
-
-The application includes automated tests to verify important business logic and application startup.
-
-### 1. Execute Automated Tests
-
-Run the following command from the project root directory:
-
-```powershell
+- Ticket activity events are stored in MongoDB.
+- Important ticket operations are recorded in the activity timeline.
+- User-originated activity records capture the authenticated employee
+  ID and role from the JWT.
+- System-generated events use the system origin and do not represent
+  an authenticated employee.
+The SQL Server database remains the source for user and current ticket
+records. MongoDB stores the comments and activity history associated
+with tickets.
+5. Overdue Ticket Monitoring
+A scheduled task periodically checks unresolved tickets.
+- It identifies overdue tickets that remain unresolved.
+- It records a WARNING activity event for an overdue ticket.
+- It prevents duplicate warning events for the same ticket.
+- It does not automatically change the ticket status.
+- MongoDB write failures are handled so that the scheduled task can
+  continue and a later scan can retry.
+Testing and Verification
+1. Execute Automated Tests
+Start Docker Desktop, then run the following command from the project
+root:
 .\mvnw.cmd clean verify
-```
+The test profile uses an H2 in-memory database for relational database
+tests and Testcontainers to start MongoDB for integration testing.
+2. Test Coverage
+The automated test suite includes the following test classes:
+- HelpdeskApiApplicationTests.java -- Verifies that the Spring
+  Boot application context loads successfully.
+- OverdueTicketSchedulerTest.java -- Tests overdue warning
+  creation, multiple overdue tickets, duplicate prevention, and safe
+  handling of MongoDB write failures and duplicate-key exceptions.
+- JwtAuthenticationFilterTest.java -- Tests JWT authentication
+  filter behavior, including token validation and rejected
+  authentication cases.
+- UserServiceTest.java -- Tests user service behavior, including
+  password hashing and authentication-related operations.
+3. Manual Application Verification
+Use Swagger UI to verify the API functionality.
 
-This command executes the test suite and verifies the Maven build.
-
-### 2. Test Coverage
-
-The current automated test suite includes:
-
-**Application Integration Test**
-- Verifies that the Spring Boot application context loads successfully.
-
-**Overdue Ticket Scheduler Unit Tests**
-- Verifies that a warning event is saved for an overdue ticket.
-- Verifies warning generation for multiple overdue tickets.
-- Verifies that duplicate warning events are not created.
-- Verifies that MongoDB write failures are handled without crashing the scheduler.
-- Verifies that duplicate-key exceptions are handled safely.
-
-### 3. Manual Application Verification
-
-After starting the application, use Swagger UI to verify the REST API functionality.
-
-The following areas should be checked:
-
-- User registration and login.
-- JWT authentication and authorization.
-- Ticket creation and retrieval.
-- Ticket claiming and administrative assignment.
-- Ticket status transitions.
-- Ticket comments and activity records.
-- Ticket filtering and pagination.
-- Overdue ticket warning generation.
-- Application and database health through Actuator.
-
-### 4. Test Results
-
-Maven displays the test execution summary in the terminal.
-
-Detailed test reports are generated under:
-
-```text
+Recommended manual checks:
+- Register a new requester account.
+- Log in with valid credentials and receive a JWT.
+- Attempt login with invalid credentials.
+- Access a protected endpoint without a token and verify that the
+  request is rejected.
+- Access a protected endpoint with a valid token.
+- Verify role, ownership, assignment, and ticket workflow
+  restrictions.
+- Claim and assign tickets using the appropriate roles.
+- Move a ticket through valid status transitions.
+- Add and retrieve ticket comments.
+- Verify that the corresponding activity events are stored in MongoDB.
+- Log out and verify that the revoked token can no longer access
+  protected endpoints.
+- Verify ticket filtering and pagination.
+- Verify overdue warning generation.
+- Check application health through Actuator.
+4. Test Results
+Maven displays the test execution summary in the terminal. Detailed
+reports are generated under:
 target/surefire-reports/
-```
-
-A successful verification should complete with:
-
-```text
+A successful verification ends with:
 BUILD SUCCESS
-```
-
-
-## Project Structure
-
-The application follows a layered package structure to separate business logic, API handling, data access, security, and supporting components.
-
+Project Structure
+The application follows a layered package structure.
 helpdesk-api/
 │
 ├── src/
@@ -435,6 +364,10 @@ helpdesk-api/
 │       └── java/
 │           └── com/
 │               └── helpdesk/
+│                   ├── config/
+│                   │   └── JwtAuthenticationFilterTest.java
+│                   ├── service/
+│                   │   └── UserServiceTest.java
 │                   ├── HelpdeskApiApplicationTests.java
 │                   └── scheduler/
 │                       └── OverdueTicketSchedulerTest.java
@@ -445,286 +378,231 @@ helpdesk-api/
 ├── pom.xml
 ├── HELP.md
 └── README.md
+Package Responsibilities
+  Package                             Responsibility
+  advice                            Handles global API exception
+responses.
 
-### Package Responsibilities
+  aspect                            Implements aspect-oriented logging
+for service operations.
 
-- **advice:** Handles global API exception responses.
-- **aspect:** Implements aspect-oriented logging for service operations.
-- **config:** Contains application and security configuration.
-- **controller:** Exposes REST API endpoints.
-- **document:** Contains MongoDB document models.
-- **dto:** Defines request and response data transfer objects.
-- **entity:** Contains relational database entities.
-- **enums:** Defines application-specific enumerations.
-- **event:** Handles application events and event listeners.
-- **exception:** Contains custom application exceptions.
-- **mapper:** Handles object and DTO mapping.
-- **repository:** Provides database access operations.
-- **scheduler:** Contains scheduled background tasks.
-- **service:** Implements application business logic.
-- **validation:** Handles application configuration validation.
+  config                            Contains application, security, and
+API documentation configuration.
 
-### Test Structure
+  controller                        Exposes REST API endpoints.
 
-- `HelpdeskApiApplicationTests.java` – Application context integration test.
-- `OverdueTicketSchedulerTest.java` – Unit tests for overdue ticket scheduling behavior.
+  document                          Contains MongoDB document models.
 
+  dto                               Defines request and response data
+transfer objects.
 
-## API Endpoint Reference
+  entity                            Contains relational database
+entities.
 
-All API endpoints use the `/api/v1` base path.
+  enums                             Defines application-specific
+enumerations.
 
-Protected endpoints require JWT Bearer authentication unless otherwise specified.
+  event                             Handles application events and
+event listeners.
 
-### 1. User APIs
+  exception                         Contains custom application
+exceptions.
 
-**Base Path:** `/api/v1/users`
+  mapper                            Handles object and DTO mapping.
 
-- **Register User**
-  - Method: `POST`
-  - Endpoint: `/api/v1/users/register`
-  - Access: Public
-  - Purpose: Registers a new requester account.
+  repository                        Provides database access
+operations.
 
-- **Login User**
-  - Method: `POST`
-  - Endpoint: `/api/v1/users/login`
-  - Access: Public
-  - Purpose: Authenticates a user and returns a JWT access token.
+  scheduler                         Contains scheduled background
+tasks.
 
-- **Create Privileged User**
-  - Method: `POST`
-  - Endpoint: `/api/v1/users/admin/create-user`
-  - Access: ADMIN
-  - Purpose: Allows an administrator to create privileged user accounts.
+  service                           Implements application business
+logic.
+validation                        Handles application configuration
+validation.
+API Endpoint Reference
+All application business APIs use the /api/v2 base path.
 
-### 2. Ticket APIs
+Protected endpoints require a valid JWT Bearer token in the
+Authorization header. Registration and login are public. Logout
+requires authentication.
+1. Authentication APIs
+Base path: /api/v2/auth
+  Method            Endpoint                  Access            Purpose
+  POST              /api/v2/auth/register   Public            Registers a new
+REQUESTER
+account.
 
-**Base Path:** `/api/v1/tickets`
+  POST              /api/v2/auth/login      Public            Validates
+credentials and
+returns a signed
+JWT access token.
+POST              /api/v2/auth/logout     Authenticated     Revokes the current
+token and returns
+204 No Content.
+Registration Request Example
+{
+  "fullName": "Example Requester",
+  "email": "requester@example.com",
+  "password": "Choose-A-Strong-Password"
+}
+The registration API does not allow users to select their own role.
+Every self-registered account receives the REQUESTER role.
 
-- **Create Ticket**
-  - Method: `POST`
-  - Endpoint: `/api/v1/tickets`
-  - Access: REQUESTER
-  - Purpose: Creates a new support ticket.
+The login response contains a signed JWT access token. Use that token to
+access protected endpoints.
+2. User API
+  Method            Endpoint                            Access            Purpose
+  POST              /api/v2/users/admin/create-user   ADMIN           Allows an
+administrator to
+create privileged
+AGENT or
+ADMIN accounts.
+3. Ticket APIs
+Base path: /api/v2/tickets
+  Method            Endpoint                              Access            Purpose
+  POST              /api/v2/tickets                     REQUESTER       Creates a support
+ticket.
 
-- **Get Ticket by ID**
-  - Method: `GET`
-  - Endpoint: `/api/v1/tickets/{ticketId}`
-  - Access: REQUESTER, AGENT, ADMIN
-  - Purpose: Retrieves ticket details based on the ticket ID.
+  GET               /api/v2/tickets/{ticketId}          Authenticated;    Retrieves ticket
+ownership and     details.
+role rules apply
 
-- **Get All Tickets**
-  - Method: `GET`
-  - Endpoint: `/api/v1/tickets`
-  - Access: REQUESTER, AGENT, ADMIN
-  - Purpose: Retrieves tickets with filtering and pagination support.
+  GET               /api/v2/tickets                     Authenticated;    Retrieves tickets
+role-based        with filtering
+filtering applies and pagination.
 
-- **Update Ticket Status**
-  - Method: `PATCH`
-  - Endpoint: `/api/v1/tickets/{ticketId}/status`
-  - Access: REQUESTER, AGENT
-  - Purpose: Updates the status of a ticket according to the permitted workflow.
+  PATCH             /api/v2/tickets/{ticketId}/status   Assigned AGENT  Updates ticket
+or owning         status according
+REQUESTER,      to the workflow.
+depending on the
+transition
 
-- **Claim Ticket**
-  - Method: `PATCH`
-  - Endpoint: `/api/v1/tickets/{ticketId}/claim`
-  - Access: AGENT
-  - Purpose: Allows an agent to claim an unassigned ticket.
-
-- **Assign Agent**
-  - Method: `PATCH`
-  - Endpoint: `/api/v1/tickets/{ticketId}/assign`
-  - Access: ADMIN
-  - Purpose: Allows an administrator to assign an agent to a ticket.
-
-### 3. Comment APIs
-
-**Base Path:** `/api/v1/tickets/{ticketId}/comments`
-
-- **Add Comment**
-  - Method: `POST`
-  - Endpoint: `/api/v1/tickets/{ticketId}/comments`
-  - Access: Authenticated user
-  - Purpose: Adds a comment to a ticket.
-
-- **Get Ticket Comments**
-  - Method: `GET`
-  - Endpoint: `/api/v1/tickets/{ticketId}/comments`
-  - Access: Authenticated user
-  - Purpose: Retrieves comments associated with a ticket.
-
-### Authentication Header
-
+  PATCH             /api/v2/tickets/{ticketId}/claim    AGENT           Claims an
+eligible
+unassigned
+ticket.
+PATCH             /api/v2/tickets/{ticketId}/assign   ADMIN           Assigns an agent
+to a ticket.
+4. Comment APIs
+Base path: /api/v2/tickets/{ticketId}/comments
+  Method            Endpoint                                Access            Purpose
+  POST              /api/v2/tickets/{ticketId}/comments   Authenticated     Adds a comment to
+user; ticket      a ticket.
+access rules
+apply
+GET               /api/v2/tickets/{ticketId}/comments   Authenticated     Retrieves
+user; ticket      comments
+access rules      associated with a
+apply             ticket.
+Authentication Header
 For protected endpoints, include the following HTTP header:
-
-```http
 Authorization: Bearer <JWT_ACCESS_TOKEN>
-```
+Authentication and Authorization Responses
+- 401 Unauthorized -- Returned when the token is missing,
+  malformed, expired, invalid, or revoked.
+- 403 Forbidden -- Returned when an authenticated user fails an
+  existing role, ownership, assignment, or workflow rule.
+Ticket Filtering and Pagination
+The ticket retrieval endpoint supports filtering and pagination.
 
-## Ticket Filtering and Pagination
+Endpoint: GET /api/v2/tickets
+Available Query Parameters
+  Parameter               Description             Values / Default
+  status                Filters tickets by      OPEN, IN_PROGRESS,
+current status.         RESOLVED, CLOSED
 
-The ticket retrieval endpoint supports filtering and pagination to make ticket management easier.
+  priority              Filters tickets by      HIGH, MEDIUM, LOW
+priority.
 
-**Endpoint:** `GET /api/v1/tickets`
-
-### Available Query Parameters
-
-- **status**
-  - Filters tickets by their current status.
-  - Optional parameter.
-  - Supported values: `OPEN`, `IN_PROGRESS`, `RESOLVED`, `CLOSED`.
-
-- **priority**
-  - Filters tickets by priority.
-  - Optional parameter.
-  - Supported values: `HIGH`, `MEDIUM`, `LOW`.
-
-- **page**
-  - Specifies the page number.
-  - Default value: `0`.
-  - Minimum value: `0`.
-
-- **size**
-  - Specifies the number of records per page.
-  - Default value: `10`.
-  - Allowed range: `1` to `100`.
-
-### Example Requests
-
+  page                  Specifies the page      Default 0; minimum
+number.                 0
+size                  Specifies the number of Default 10; allowed
+records per page.       range 1 to 100
+All query parameters are optional.
+Example Requests
 Retrieve all tickets using default pagination:
-
-```http
-GET /api/v1/tickets
-```
-
-Retrieve OPEN tickets:
-
-```http
-GET /api/v1/tickets?status=OPEN
-```
-
-Retrieve HIGH priority tickets:
-
-```http
-GET /api/v1/tickets?priority=HIGH
-```
-
-Retrieve OPEN and HIGH priority tickets:
-
-```http
-GET /api/v1/tickets?status=OPEN&priority=HIGH
-```
-
-Retrieve the second page with 5 records:
-
-```http
-GET /api/v1/tickets?page=1&size=5
-```
-
+GET /api/v2/tickets
+Retrieve open tickets:
+GET /api/v2/tickets?status=OPEN
+Retrieve high-priority tickets:
+GET /api/v2/tickets?priority=HIGH
+Retrieve open and high-priority tickets:
+GET /api/v2/tickets?status=OPEN&priority=HIGH
+Retrieve the second page with five records:
+GET /api/v2/tickets?page=1&size=5
 Combine filtering and pagination:
-
-```http
-GET /api/v1/tickets?status=IN_PROGRESS&priority=MEDIUM&page=0&size=10
-```
-
-### Pagination Validation
-
+GET /api/v2/tickets?status=IN_PROGRESS&priority=MEDIUM&page=0&size=10
+Pagination Validation
 - Page numbers cannot be negative.
 - Page size must be between 1 and 100.
 - Invalid pagination values are rejected by the application.
-
-## Error Handling
-
-The application uses centralized exception handling through Spring's `@RestControllerAdvice` to provide consistent error responses.
-
-### HTTP Error Responses
-
-- **400 Bad Request**
-  - Occurs when request validation fails.
-  - Occurs when invalid ticket status transitions are attempted.
-  - Occurs when request parameters or request bodies contain invalid data.
-
-- **401 Unauthorized**
-  - Returned when authentication is missing or a JWT token is invalid or expired.
+Error Handling
+The application uses centralized exception handling through Spring's
+@RestControllerAdvice to provide consistent error responses.
+HTTP Error Responses
+- 400 Bad Request
+  - Returned when request validation fails.
+  - Returned when invalid ticket status transitions are attempted.
+  - Returned when request parameters or request bodies contain
+    invalid data.
+- 401 Unauthorized
+  - Returned when authentication is missing or a JWT is malformed,
+    invalid, expired, or revoked.
   - Handled by the Spring Security authentication configuration.
-
-- **403 Forbidden**
-  - Returned when an authenticated user attempts an operation without the required permissions.
-
-- **500 Internal Server Error**
+- 403 Forbidden
+  - Returned when an authenticated user attempts an operation
+    without the required permissions.
+- 500 Internal Server Error
   - Returned when an unexpected application exception occurs.
-
-### Error Response Structure
-
-Error responses use the `ErrorResponse` DTO and contain the following fields:
-
-- `timestamp` – Date and time when the error occurred.
-- `status` – HTTP status code.
-- `error` – Description of the error.
-- `message` – Details about the error.
-
-### Example Error Response
-
-```json
+Error Response Structure
+Error responses use the ErrorResponse DTO and contain:
+- timestamp -- Date and time when the error occurred.
+- status -- HTTP status code.
+- error -- Description of the error.
+- message -- Details about the error.
+Example:
 {
   "timestamp": "2026-11-13T14:30:00",
   "status": 400,
   "error": "Bad Request",
   "message": "Invalid ticket status transition."
 }
-```
-
-The example illustrates the response structure. Actual messages depend on the exception and validation failure.
-
-## Database Schema and Index Management
-
-### 1. SQL Server Schema Management
-
-The application uses Spring Data JPA and Hibernate to manage the relational database schema.
+The example illustrates the response structure. Actual messages depend
+on the exception and validation failure.
+Database Schema and Index Management
+1. SQL Server Schema Management
+The application uses Spring Data JPA and Hibernate to manage the
+relational database schema.
 
 The local profile uses:
-
-```yaml
 spring:
   jpa:
     hibernate:
       ddl-auto: update
-```
-
 - Missing database tables are created automatically.
 - Schema updates are applied based on the JPA entity definitions.
 - Existing database records are generally preserved.
-
-Before starting the application, create the `HelpDeskDB` database in SQL Server. Hibernate will manage the application tables during startup.
-
-### 2. Test Database Schema
-
+Create the HelpDeskDB database in SQL Server before starting the
+application. Hibernate manages the application tables during startup.
+2. Test Database Schema
 The test profile uses:
-
-```yaml
 spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-```
+This configuration creates the database schema for testing and drops it
+when the test context is closed.
+3. MongoDB Index Management
+MongoDB indexes improve query performance and help maintain data
+integrity.
 
-This configuration creates the database schema for testing and drops it when the test context is closed.
-
-### 3. MongoDB Index Management
-
-MongoDB indexes improve query performance and help maintain data integrity.
-
-The application uses indexes on activity records, including:
-
-- `ticket_createdAt_idx` – Supports ticket activity retrieval ordered by creation time.
-- `unique_ticket_warning_idx` – A unique partial index on `ticketId` and `action`, restricted to `WARNING` events.
-
-The unique partial index prevents duplicate overdue warning events for the same ticket.
-
-If the unique partial index is not automatically created, execute the following command in MongoDB Compass or the MongoDB shell:
-
-```javascript
+The application uses activity indexes, including:
+- ticket_createdAt_idx -- Supports ticket activity retrieval ordered
+  by creation time.
+- unique_ticket_warning_idx -- A unique partial index on ticketId
+  and action, restricted to WARNING events.
+If the unique partial index is not automatically created, execute:
 db.activities.createIndex(
     { ticketId: 1, action: 1 },
     {
@@ -733,35 +611,57 @@ db.activities.createIndex(
         partialFilterExpression: { action: "WARNING" }
     }
 );
-```
-
-## Dependencies and Build Tools
-
-The project uses Maven for dependency management and build automation. The Maven Wrapper is included, so a separate Maven installation is not required.
-
-### Core Dependencies
-
-- **Spring Boot WebMVC:** Provides REST API development and HTTP request handling.
-- **Spring Data JPA:** Handles relational database operations using Hibernate.
-- **Microsoft SQL Server JDBC Driver:** Connects the application to SQL Server.
-- **Spring Data MongoDB:** Handles document storage and retrieval in MongoDB.
-- **Spring Boot Validation:** Validates incoming request data.
-- **Spring Security:** Provides authentication and authorization.
-- **JJWT:** Handles JWT creation and token validation.
-- **Spring Boot Actuator:** Provides application health and monitoring endpoints.
-- **Spring Boot AspectJ:** Supports aspect-oriented programming and operation logging.
-- **Springdoc OpenAPI:** Generates API documentation and Swagger UI.
-
-### Testing Dependencies
-
-- **Spring Boot Test:** Supports application and integration testing.
-- **JUnit 5:** Provides the testing framework.
-- **H2 Database:** Provides an in-memory relational database for tests.
-- **Testcontainers:** Provides container-based MongoDB testing.
-- **Spring Boot Test Integration:** Supports testing Spring Boot components and application integrations.
-
-### Build Tool
-
-- Maven Wrapper (`mvnw.cmd`) is used to build, test, and package the application.
-- Java 21 is configured as the project's required Java version.
-- The Spring Boot Maven Plugin is used to package the application as an executable JAR.
+Dependencies and Build Tools
+The project uses Maven for dependency management and build automation.
+The Maven Wrapper is included, so a separate Maven installation is not
+required.
+Core Dependencies
+- Spring Boot WebMVC -- Provides REST API development and HTTP
+  request handling.
+- Spring Data JPA -- Handles relational database operations using
+  Hibernate.
+- Microsoft SQL Server JDBC Driver -- Connects the application to
+  SQL Server.
+- Spring Data MongoDB -- Handles document storage and retrieval in
+  MongoDB.
+- Spring Boot Validation -- Validates incoming request data.
+- Spring Security -- Provides authentication and authorization.
+- JJWT -- Handles JWT creation and token validation.
+- BCrypt -- Hashes user passwords.
+- Spring Boot Actuator -- Provides application health and
+  monitoring endpoints.
+- Spring Boot AspectJ -- Supports aspect-oriented programming and
+  operation logging.
+- Springdoc OpenAPI -- Generates API documentation and Swagger UI.
+Testing Dependencies
+- Spring Boot Test -- Supports application and integration
+  testing.
+- JUnit 5 -- Provides the testing framework.
+- Mockito -- Supports unit testing with mocks.
+- H2 Database -- Provides an in-memory relational database for
+  tests.
+- Testcontainers -- Provides container-based MongoDB testing.
+Build Tool
+- Maven Wrapper (mvnw and mvnw.cmd) is used to build, test, and
+  package the application.
+- Java 21 is the project's required Java version.
+- The Spring Boot Maven Plugin packages the application as an
+  executable JAR.
+Security Notes
+- Never commit real database passwords, JWT secrets, or access tokens.
+- Use a strong, randomly generated JWT secret that decodes to at least
+  32 bytes.
+- Keep the JWT secret consistent for the lifetime of the running
+  application.
+- Self-registration creates only REQUESTER accounts.
+- Privileged user creation is restricted to administrators.
+- Logging out revokes the presented token; subsequent requests using
+  that token should be rejected.
+- A valid JWT does not override ticket ownership, assignment, role, or
+  workflow authorization rules.
+Version Information
+- API version: v2
+- Java version: 21
+- Spring Boot version: 4.1.2
+- Default JWT access-token lifetime: 24 hours (86400000
+  milliseconds)
