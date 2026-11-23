@@ -1,0 +1,29 @@
+$kind: http-request
+url: http://localhost:8081/api/v2/auth/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"email\": \"agent2@example.com\",\r
+
+    \    \"password\": \"YOUR_AGENT_PASSWORD\"\r
+
+    }"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "const response = pm.response.json();\r
+
+      \r
+
+      // Save the JWT from the \"token\" field\r
+
+      pm.collectionVariables.set(\"accessToken\", response.token);\r
+
+      \r
+
+      console.log(\"JWT token saved successfully\");\r\n"
+    language: text/javascript
+order: 1000
