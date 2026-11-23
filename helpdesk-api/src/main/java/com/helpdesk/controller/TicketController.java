@@ -20,7 +20,7 @@ import com.helpdesk.enums.TicketStatus;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
-@RequestMapping("/api/v1/tickets")
+@RequestMapping("/api/v2/tickets")
 @SecurityRequirement(name = "bearerAuth")
 public class TicketController {
 

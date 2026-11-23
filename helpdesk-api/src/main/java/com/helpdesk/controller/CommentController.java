@@ -16,7 +16,7 @@ import com.helpdesk.service.CommentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
-@RequestMapping("/api/v1/tickets/{ticketId}/comments")
+@RequestMapping("/api/v2/tickets/{ticketId}/comments")
 @SecurityRequirement(name = "bearerAuth")
 public class CommentController {
 

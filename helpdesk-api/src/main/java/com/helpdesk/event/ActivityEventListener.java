@@ -29,7 +29,9 @@ public class ActivityEventListener {
             ActivityDocument activity = new ActivityDocument();
 
             activity.setTicketId(event.ticketId());
-            activity.setActorId(null);
+            activity.setEmployeeId(event.employeeId());
+            activity.setEmployeeRole(event.employeeRole());
+            activity.setEventOrigin("USER");
             activity.setAction("TICKET_CREATED");
             activity.setDetails("Ticket created: " + event.title());
             activity.setCreatedAt(LocalDateTime.now());
@@ -51,7 +53,9 @@ public class ActivityEventListener {
             ActivityDocument activity = new ActivityDocument();
 
             activity.setTicketId(event.ticketId());
-            activity.setActorId(event.actorId());
+            activity.setEmployeeId(event.employeeId());
+            activity.setEmployeeRole(event.employeeRole());
+            activity.setEventOrigin(event.eventOrigin());
             activity.setAction(event.action());
             activity.setDetails(event.details());
             activity.setCreatedAt(LocalDateTime.now());

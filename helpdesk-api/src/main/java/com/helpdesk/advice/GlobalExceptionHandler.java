@@ -13,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import com.helpdesk.dto.response.ErrorResponse;
 import com.helpdesk.exception.InvalidTicketTransitionException;
+import com.helpdesk.exception.InvalidCredentialsException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,19 @@ public class GlobalExceptionHandler {
                                 "You do not have permission to perform this action.");
 
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        }
+
+        @ExceptionHandler(InvalidCredentialsException.class)
+        public ResponseEntity<ErrorResponse> handleInvalidCredentials(
+                        InvalidCredentialsException exception) {
+
+                ErrorResponse error = new ErrorResponse(
+                                LocalDateTime.now(),
+                                HttpStatus.UNAUTHORIZED.value(),
+                                "Unauthorized",
+                                "Invalid email or password.");
+
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
         @ExceptionHandler(Exception.class)

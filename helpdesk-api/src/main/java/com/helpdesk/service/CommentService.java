@@ -12,7 +12,6 @@ import com.helpdesk.repository.jpa.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.helpdesk.document.CommentDocument;
 import com.helpdesk.dto.request.CommentRequest;
@@ -20,8 +19,8 @@ import com.helpdesk.dto.response.CommentResponse;
 import com.helpdesk.event.TicketActivityEvent;
 import com.helpdesk.mapper.CommentMapper;
 import com.helpdesk.repository.jpa.TicketRepository;
-import com.helpdesk.repository.jpa.UserRepository;
 import com.helpdesk.repository.mongo.CommentRepository;
+
 
 @Service
 public class CommentService {
@@ -58,10 +57,11 @@ public class CommentService {
 
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-                String email = authentication.getName();
+                Long userId = Long.parseLong(authentication.getName());
 
-                User author = userRepository.findByEmail(email)
+                User author = userRepository.findById(userId)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
+
                 // Convert request into MongoDB document
                 CommentDocument comment = commentMapper.toDocument(request, ticketId, author.getId());
 
@@ -73,8 +73,10 @@ public class CommentService {
                                 new TicketActivityEvent(
                                                 ticketId,
                                                 author.getId(),
+                                                author.getRole().name(),
                                                 "COMMENT_ADDED",
-                                                "A new comment was added to the ticket"));
+                                                "A new comment was added to the ticket",
+                                                "USER"));
 
                 return commentMapper.toResponse(savedComment);
         }

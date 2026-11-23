@@ -7,36 +7,22 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
-import com.helpdesk.dto.request.RegisterRequest;
-import com.helpdesk.dto.response.LoginResponse;
-import com.helpdesk.dto.response.UserResponse;
-import com.helpdesk.service.UserService;
-import com.helpdesk.dto.request.LoginRequest;
 
+import com.helpdesk.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.helpdesk.dto.request.AdminCreateUserRequest;
+import com.helpdesk.dto.response.UserResponse;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v2/users")
 public class UserController {
 
     private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> registerUser(
-            @Valid @RequestBody RegisterRequest request) {
-
-        UserResponse response = userService.registerUser(request);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -50,13 +36,5 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> loginUser(
-            @Valid @RequestBody LoginRequest request) {
-
-        LoginResponse response = userService.loginUser(request);
-
-        return ResponseEntity.ok(response);
-    }
 
 }

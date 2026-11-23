@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.core.env.Environment;
 
 @Component
 public class StartupConfigValidator {
@@ -17,10 +18,20 @@ public class StartupConfigValidator {
     @Value("${app.jwt.secret:}")
     private String jwtSecret;
 
+    private final Environment environment;
+
+    public StartupConfigValidator(Environment environment) {
+        this.environment = environment;
+    }
+
     @PostConstruct
     public void validateConfiguration() {
 
-        if (dbPassword == null || dbPassword.isBlank()) {
+        boolean isTestProfile = environment.matchesProfiles("test");
+
+        if (!isTestProfile &&
+                (dbPassword == null || dbPassword.isBlank())) {
+
             throw new IllegalStateException(
                     "Required configuration DB_PASSWORD is missing.");
         }
@@ -43,4 +54,5 @@ public class StartupConfigValidator {
                     "JWT_SECRET must be a valid Base64-encoded value.");
         }
     }
+
 }

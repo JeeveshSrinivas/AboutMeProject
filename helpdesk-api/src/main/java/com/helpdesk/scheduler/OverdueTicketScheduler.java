@@ -58,7 +58,9 @@ public class OverdueTicketScheduler {
                     ActivityDocument warning = new ActivityDocument();
 
                     warning.setTicketId(ticket.getId());
-                    warning.setActorId(null);
+                    warning.setEmployeeId(null);
+                    warning.setEmployeeRole(null);
+                    warning.setEventOrigin("SYSTEM");
                     warning.setAction("WARNING");
                     warning.setDetails(
                             "Ticket has passed its due time: "

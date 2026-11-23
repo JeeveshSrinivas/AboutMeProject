@@ -11,6 +11,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import java.util.UUID;
+import java.time.Instant;
+
 import org.springframework.context.annotation.DependsOn;
 
 @DependsOn("startupConfigValidator")
@@ -36,13 +39,42 @@ public class JwtService {
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .subject(email)
-                .claim("userId", userId)
+                .subject(userId.toString())
+                .id(UUID.randomUUID().toString())
                 .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public Long extractUserId(String token) {
+        return Long.parseLong(
+                Jwts.parser()
+                        .verifyWith(secretKey)
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload()
+                        .getSubject());
+    }
+
+    public String extractTokenId(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getId();
+    }
+
+    public Instant extractExpiration(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration()
+                .toInstant();
     }
 
     public String extractEmail(String token) {
@@ -62,4 +94,5 @@ public class JwtService {
                 .getPayload()
                 .get("role", String.class);
     }
+
 }

@@ -63,7 +63,9 @@ class OverdueTicketSchedulerTest {
 
                 assertEquals(101L, savedActivity.getTicketId());
                 assertEquals("WARNING", savedActivity.getAction());
-                assertNull(savedActivity.getActorId());
+                assertNull(savedActivity.getEmployeeId());
+                assertNull(savedActivity.getEmployeeRole());
+                assertEquals("SYSTEM", savedActivity.getEventOrigin());
                 assertNotNull(savedActivity.getCreatedAt());
                 assertTrue(savedActivity.getDetails().contains("passed its due time"));
         }
@@ -103,6 +105,15 @@ class OverdueTicketSchedulerTest {
 
                 assertEquals("WARNING", savedActivities.get(0).getAction());
                 assertEquals("WARNING", savedActivities.get(1).getAction());
+
+                assertEquals("SYSTEM", savedActivities.get(0).getEventOrigin());
+                assertEquals("SYSTEM", savedActivities.get(1).getEventOrigin());
+
+                assertNull(savedActivities.get(0).getEmployeeId());
+                assertNull(savedActivities.get(1).getEmployeeId());
+
+                assertNull(savedActivities.get(0).getEmployeeRole());
+                assertNull(savedActivities.get(1).getEmployeeRole());
         }
 
         @Test

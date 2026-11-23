@@ -18,8 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggingAspect {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(LoggingAspect.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
 
     private final UserRepository userRepository;
 
@@ -27,15 +26,13 @@ public class LoggingAspect {
         this.userRepository = userRepository;
     }
 
-    @Around(
-        "execution(* com.helpdesk.service..*.create*(..)) || " +
-        "execution(* com.helpdesk.service..*.update*(..)) || " +
-        "execution(* com.helpdesk.service..*.delete*(..)) || " +
-        "execution(* com.helpdesk.service..*.claim*(..)) || " +
-        "execution(* com.helpdesk.service..*.assign*(..)) || " +
-        "execution(* com.helpdesk.service..*.add*(..)) || " +
-        "execution(* com.helpdesk.service..*.register*(..))"
-    )
+    @Around("execution(* com.helpdesk.service..*.create*(..)) || " +
+            "execution(* com.helpdesk.service..*.update*(..)) || " +
+            "execution(* com.helpdesk.service..*.delete*(..)) || " +
+            "execution(* com.helpdesk.service..*.claim*(..)) || " +
+            "execution(* com.helpdesk.service..*.assign*(..)) || " +
+            "execution(* com.helpdesk.service..*.add*(..)) || " +
+            "execution(* com.helpdesk.service..*.register*(..))")
     public Object logServiceOperation(ProceedingJoinPoint joinPoint)
             throws Throwable {
 
@@ -47,28 +44,24 @@ public class LoggingAspect {
         try {
             Object result = joinPoint.proceed();
 
-            long duration =
-                    (System.nanoTime() - startTime) / 1_000_000;
+            long duration = (System.nanoTime() - startTime) / 1_000_000;
 
             logger.info(
-                "Operation: {}, Actor ID: {}, Duration: {} ms, Status: SUCCESS",
-                operation, actorId, duration
-            );
+                    "Operation: {}, Actor ID: {}, Duration: {} ms, Status: SUCCESS",
+                    operation, actorId, duration);
 
             return result;
 
         } catch (Throwable exception) {
 
-            long duration =
-                    (System.nanoTime() - startTime) / 1_000_000;
+            long duration = (System.nanoTime() - startTime) / 1_000_000;
 
             logger.error(
-                "Operation: {}, Actor ID: {}, Duration: {} ms, Status: FAILURE, Exception: {}",
-                operation,
-                actorId,
-                duration,
-                exception.getClass().getSimpleName()
-            );
+                    "Operation: {}, Actor ID: {}, Duration: {} ms, Status: FAILURE, Exception: {}",
+                    operation,
+                    actorId,
+                    duration,
+                    exception.getClass().getSimpleName());
 
             throw exception;
         }
@@ -76,8 +69,7 @@ public class LoggingAspect {
 
     private String getActorId() {
 
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null ||
                 !authentication.isAuthenticated()) {
@@ -85,7 +77,9 @@ public class LoggingAspect {
         }
 
         try {
-            return userRepository.findByEmail(authentication.getName())
+            Long userId = Long.parseLong(authentication.getName());
+
+            return userRepository.findById(userId)
                     .map(user -> String.valueOf(user.getId()))
                     .orElse("unknown");
 

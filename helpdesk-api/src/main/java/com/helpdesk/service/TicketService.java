@@ -61,9 +61,9 @@ public class TicketService {
 
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-                String email = authentication.getName();
+                Long userId = Long.parseLong(authentication.getName());
 
-                User requester = userRepository.findByEmail(email)
+                User requester = userRepository.findById(userId)
                                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
 
                 // Only requesters can create tickets
@@ -85,7 +85,9 @@ public class TicketService {
                 eventPublisher.publishEvent(
                                 new TicketCreatedEvent(
                                                 savedTicket.getId(),
-                                                savedTicket.getTitle()));
+                                                savedTicket.getTitle(),
+                                                requester.getId(),
+                                                requester.getRole().name()));
 
                 return ticketMapper.toResponse(savedTicket);
         }
@@ -110,9 +112,9 @@ public class TicketService {
 
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-                String email = authentication.getName();
+                Long userId = Long.parseLong(authentication.getName());
 
-                User currentUser = userRepository.findByEmail(email)
+                User currentUser = userRepository.findById(userId)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
 
                 // Requesters can view only their own tickets
@@ -135,9 +137,9 @@ public class TicketService {
                 // Get the logged-in agent
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-                String email = authentication.getName();
+                Long userId = Long.parseLong(authentication.getName());
 
-                User agent = userRepository.findByEmail(email)
+                User agent = userRepository.findById(userId)
                                 .orElseThrow(() -> new RuntimeException("Agent not found"));
 
                 if (agent.getRole() != com.helpdesk.enums.UserRole.AGENT) {
@@ -171,8 +173,10 @@ public class TicketService {
                                 new TicketActivityEvent(
                                                 updatedTicket.getId(),
                                                 agent.getId(),
+                                                agent.getRole().name(),
                                                 "TICKET_CLAIMED",
-                                                "Ticket claimed by agent: " + agent.getEmail()));
+                                                "Ticket claimed by agent: " + agent.getEmail(),
+                                                "USER"));
 
                 return ticketMapper.toResponse(updatedTicket);
         }
@@ -183,9 +187,9 @@ public class TicketService {
                 // Get the logged-in admin
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-                String adminEmail = authentication.getName();
+                Long adminId = Long.parseLong(authentication.getName());
 
-                User admin = userRepository.findByEmail(adminEmail)
+                User admin = userRepository.findById(adminId)
                                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
                 if (admin.getRole() != com.helpdesk.enums.UserRole.ADMIN) {
@@ -224,8 +228,10 @@ public class TicketService {
                                 new TicketActivityEvent(
                                                 updatedTicket.getId(),
                                                 admin.getId(),
+                                                admin.getRole().name(),
                                                 "AGENT_ASSIGNED",
-                                                "Ticket assigned to agent: " + agent.getEmail()));
+                                                "Ticket assigned to agent: " + agent.getEmail(),
+                                                "USER"));
 
                 return ticketMapper.toResponse(updatedTicket);
         }
@@ -248,9 +254,9 @@ public class TicketService {
 
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-                String email = authentication.getName();
+                Long userId = Long.parseLong(authentication.getName());
 
-                User currentUser = userRepository.findByEmail(email)
+                User currentUser = userRepository.findById(userId)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
 
                 if (currentUser.getRole() == com.helpdesk.enums.UserRole.REQUESTER) {
@@ -297,11 +303,10 @@ public class TicketService {
 
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-                String email = authentication.getName();
+                Long userId = Long.parseLong(authentication.getName());
 
-                User actor = userRepository.findByEmail(email)
+                User actor = userRepository.findById(userId)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
-
                 TicketStatus currentStatus = ticket.getStatus();
 
                 // Check whether the requested transition is valid
@@ -347,9 +352,11 @@ public class TicketService {
                                 new TicketActivityEvent(
                                                 updatedTicket.getId(),
                                                 actor.getId(),
+                                                actor.getRole().name(),
                                                 "STATUS_CHANGED",
                                                 "Ticket status changed from " + currentStatus
-                                                                + " to " + newStatus));
+                                                                + " to " + newStatus,
+                                                "USER"));
 
                 return ticketMapper.toResponse(updatedTicket);
         }

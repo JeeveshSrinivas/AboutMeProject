@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 @OpenAPIDefinition(
     info = @Info(
         title = "Help Desk Ticket API",
-        version = "1.0",
+        version = "2.0",
         description = "REST API for managing help desk tickets, users, and comments."
     )
 )

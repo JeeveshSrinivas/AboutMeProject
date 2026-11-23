@@ -1,6 +1,8 @@
 
 package com.helpdesk.service;
 
+import java.time.Instant;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +13,14 @@ import com.helpdesk.dto.response.LoginResponse;
 import com.helpdesk.dto.response.UserResponse;
 import com.helpdesk.entity.User;
 import com.helpdesk.enums.UserRole;
+import com.helpdesk.exception.InvalidCredentialsException;
 import com.helpdesk.repository.jpa.UserRepository;
 import com.helpdesk.dto.request.AdminCreateUserRequest;
+
+import com.helpdesk.repository.RevokedTokenRepository;
+
+import com.helpdesk.document.RevokedToken;
+import java.time.Instant;
 
 @Service
 public class UserService {
@@ -20,14 +28,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RevokedTokenRepository revokedTokenRepository;
 
     public UserService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
+            JwtService jwtService,
+            RevokedTokenRepository revokedTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.revokedTokenRepository = revokedTokenRepository;
     }
 
     @Transactional
@@ -66,7 +77,7 @@ public class UserService {
         org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder
                 .getContext().getAuthentication();
 
-        User currentUser = userRepository.findByEmail(authentication.getName())
+        User currentUser = userRepository.findById(Long.parseLong(authentication.getName()))
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (currentUser.getRole() != UserRole.ADMIN) {
@@ -112,11 +123,11 @@ public class UserService {
 
         // Find user using email
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         // Verify password
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         // Prepare user response
@@ -138,6 +149,19 @@ public class UserService {
         loginResponse.setUser(response);
 
         return loginResponse;
+    }
+
+    public void logoutUser(String token) {
+
+        String tokenId = jwtService.extractTokenId(token);
+
+        Instant expiresAt = jwtService.extractExpiration(token);
+
+        RevokedToken revokedToken = new RevokedToken(
+                tokenId,
+                expiresAt);
+
+        revokedTokenRepository.save(revokedToken);
     }
 
 }
