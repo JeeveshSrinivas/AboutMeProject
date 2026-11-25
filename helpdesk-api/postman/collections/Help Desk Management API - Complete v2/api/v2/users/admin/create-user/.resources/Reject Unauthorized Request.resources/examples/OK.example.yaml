@@ -1,0 +1,65 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v2/users/admin/create-user"
+  method: POST
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: "*/*"
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  body:
+    type: json
+    content: |-
+      {
+        "email": "1q6qZb0@cgRTWtWLTUplPomCZfyqROKRfQME.toxz",
+        "fullName": "string",
+        "password": "stringstring",
+        "role": "REQUESTER"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "id": 5533,
+        "fullName": "string",
+        "email": "string",
+        "role": "REQUESTER",
+        "createdAt": "1956-12-16T09:36:48.381Z"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "REQUESTER",
+              "AGENT",
+              "ADMIN"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+order: 1000

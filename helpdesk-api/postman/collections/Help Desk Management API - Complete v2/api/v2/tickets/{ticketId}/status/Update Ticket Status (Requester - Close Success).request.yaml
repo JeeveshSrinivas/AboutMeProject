@@ -1,0 +1,40 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/status?status=CLOSED"
+method: PATCH
+queryParams:
+  status: CLOSED
+pathVariables:
+  ticketId: "30008"
+auth:
+  type: bearer
+  credentials:
+    token: "{{requesterToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200 OK\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Ticket status is CLOSED\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.status).to.eql(\"CLOSED\");\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Ticket ID is correct\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.id).to.eql(30008);\r
+
+      });"
+    language: text/javascript
+order: 3000

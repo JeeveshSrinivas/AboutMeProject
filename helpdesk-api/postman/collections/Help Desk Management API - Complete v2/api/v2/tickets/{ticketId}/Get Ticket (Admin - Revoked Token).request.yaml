@@ -1,0 +1,38 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "30008"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+auth:
+  type: bearer
+  credentials:
+    token: "{{agentToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Revoked token returns 401 Unauthorized\", function () {\r
+
+      \    pm.response.to.have.status(401);\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Get Ticket (Admin - Revoked Token).resources/examples
+order: 6000

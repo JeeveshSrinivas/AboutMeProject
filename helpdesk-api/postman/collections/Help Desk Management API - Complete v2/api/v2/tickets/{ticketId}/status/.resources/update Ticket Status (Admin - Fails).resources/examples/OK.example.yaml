@@ -1,0 +1,91 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v2/tickets/:ticketId/status?status=RESOLVED"
+  method: PATCH
+  headers:
+    - key: Accept
+      value: "*/*"
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  queryParams:
+    status: RESOLVED
+  pathVariables:
+    ticketId: "5690"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "id": 2244,
+        "title": "string",
+        "description": "string",
+        "priority": "LOW",
+        "status": "CLOSED",
+        "createdAt": "2018-11-27T21:16:11.011Z",
+        "updatedAt": "1957-09-19T19:29:13.700Z",
+        "dueAt": "1948-04-19T07:44:18.653Z",
+        "requesterId": 9789,
+        "assignedAgentId": 6626
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "IN_PROGRESS",
+              "RESOLVED",
+              "CLOSED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requesterId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "assignedAgentId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+order: 1000

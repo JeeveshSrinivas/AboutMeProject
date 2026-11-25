@@ -46,3 +46,6 @@ src/main/resources/application-local.yml
 ### OS generated files ###
 .DS_Store
 Thumbs.db
+
+### Postman local environment ###
+postman/environments/

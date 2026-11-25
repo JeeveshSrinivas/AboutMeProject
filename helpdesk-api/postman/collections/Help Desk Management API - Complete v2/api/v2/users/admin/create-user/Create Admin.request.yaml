@@ -1,0 +1,81 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/users/admin/create-user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "Demo Agent",
+      "email": "demo.agent@example.com",
+      "password": "DemoAgent@123",
+      "role": "AGENT"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2147483647
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "REQUESTER",
+            "AGENT",
+            "ADMIN"
+          ]
+        }
+      },
+      "required": [
+        "email",
+        "fullName",
+        "password",
+        "role"
+      ]
+    }
+auth:
+  type: inherit
+  credentials:
+    id: 664f6948-ea6e-41ec-8d23-09b37a6dac99
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Agent created successfully\", function () {\r
+
+      \    pm.response.to.have.status(201);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response contains an AGENT user\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.id).to.exist;\r
+
+      \    pm.expect(data.email).to.eql(\"demo.agent@example.com\");\r
+
+      \    pm.expect(data.role).to.eql(\"AGENT\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Create Admin.resources/examples
+order: 6000

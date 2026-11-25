@@ -1,0 +1,73 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v2/auth/login"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: "*/*"
+  body:
+    type: json
+    content: |-
+      {
+        "email": "zY-acOPIXD@hJFHIYG.vm",
+        "password": "string"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "token": "string",
+        "tokenType": "string",
+        "user": {
+          "id": 9881,
+          "fullName": "string",
+          "email": "string",
+          "role": "AGENT",
+          "createdAt": "1957-01-05T18:11:00.142Z"
+        }
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "fullName": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "REQUESTER",
+                  "AGENT",
+                  "ADMIN"
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+order: 1000

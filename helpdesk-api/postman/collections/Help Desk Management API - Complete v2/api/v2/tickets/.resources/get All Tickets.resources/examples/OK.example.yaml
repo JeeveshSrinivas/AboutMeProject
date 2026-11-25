@@ -1,0 +1,140 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v2/tickets?status=RESOLVED&priority=HIGH&page=0&size=10"
+  method: GET
+  headers:
+    - key: Accept
+      value: "*/*"
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  queryParams:
+    status: RESOLVED
+    priority: HIGH
+    page: "0"
+    size: "10"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      {
+        "content": [
+          {
+            "id": 1723,
+            "title": "string",
+            "description": "string",
+            "priority": "LOW",
+            "status": "IN_PROGRESS",
+            "createdAt": "1976-06-21T23:02:12.191Z",
+            "updatedAt": "2009-02-19T16:03:17.862Z",
+            "dueAt": "2004-07-22T23:34:06.060Z",
+            "requesterId": 1678,
+            "assignedAgentId": 518
+          },
+          {
+            "id": 3760,
+            "title": "string",
+            "description": "string",
+            "priority": "MEDIUM",
+            "status": "RESOLVED",
+            "createdAt": "1994-02-23T17:49:26.664Z",
+            "updatedAt": "1971-07-07T05:55:32.474Z",
+            "dueAt": "1998-04-08T23:18:33.732Z",
+            "requesterId": 986,
+            "assignedAgentId": 629
+          }
+        ],
+        "page": 3943,
+        "size": 5215,
+        "totalElements": 8385,
+        "totalPages": 917,
+        "last": false
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": [
+                    "HIGH",
+                    "MEDIUM",
+                    "LOW"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "OPEN",
+                    "IN_PROGRESS",
+                    "RESOLVED",
+                    "CLOSED"
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "dueAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "requesterId": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "assignedAgentId": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "last": {
+            "type": "boolean"
+          }
+        }
+      }
+order: 1000

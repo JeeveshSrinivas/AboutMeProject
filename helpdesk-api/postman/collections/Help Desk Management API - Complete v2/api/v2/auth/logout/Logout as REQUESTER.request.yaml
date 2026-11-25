@@ -1,0 +1,30 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/auth/logout"
+method: POST
+body:
+  type: text
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{requesterToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Logout returns 204 No Content\", function () {\r
+
+      \    pm.response.to.have.status(204);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Logout response body is empty\", function () {\r
+
+      \    pm.expect(pm.response.text()).to.be.empty;\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Logout as REQUESTER.resources/examples
+order: 3000

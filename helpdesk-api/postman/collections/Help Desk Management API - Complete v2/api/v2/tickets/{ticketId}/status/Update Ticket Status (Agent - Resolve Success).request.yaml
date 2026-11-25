@@ -1,0 +1,42 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/status?status=RESOLVED"
+method: PATCH
+queryParams:
+  status: RESOLVED
+pathVariables:
+  - key: ticketId
+    value: "30008"
+    description: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{agentToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200 OK\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Ticket status is RESOLVED\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.status).to.eql(\"RESOLVED\");\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Ticket ID is correct\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.id).to.eql(30008);\r
+
+      });"
+    language: text/javascript
+order: 8000

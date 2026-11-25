@@ -1,0 +1,90 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/comments"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "30008"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+auth:
+  type: bearer
+  credentials:
+    token: "{{agentToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Comments response is an array\", function () {\r
+
+      \    pm.expect(pm.response.json()).to.be.an(\"array\");\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Previously added comment exists\", function () {\r
+
+      \    const comments = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(\r
+
+      \        comments.some(comment =>\r
+
+      \            comment.message === \"The assigned agent has started
+      investigating the reported issue.\"\r
+
+      \        )\r
+
+      \    ).to.be.true;\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Admin comment exists\", function () {\r
+
+      \    const comments = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(\r
+
+      \        comments.some(comment =>\r
+
+      \            comment.message ===\r
+
+      \            \"Admin has reviewed the ticket and acknowledged the reported
+      issue.\"\r
+
+      \        )\r
+
+      \    ).to.be.true;\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Get Comments – Success.resources/examples
+order: 3000

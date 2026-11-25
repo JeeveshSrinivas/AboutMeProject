@@ -1,0 +1,84 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/comments"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "30008"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: json
+  content: |-
+    {
+      "message": "I have reviewed the ticket update. Thank you for the progress."
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1000
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{requesterToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 201 Created\", function () {\r
+
+      \    pm.response.to.have.status(201);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Comment response contains required fields\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.id).to.exist;\r
+
+      \    pm.expect(data.ticketId).to.eql(30008);\r
+
+      \    pm.expect(data.authorId).to.exist;\r
+
+      \    pm.expect(data.message).to.eql(\r
+
+      \        \"I have reviewed the ticket update. Thank you for the
+      progress.\"\r
+
+      \    );\r
+
+      \    pm.expect(data.createdAt).to.exist;\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Add Comment – Requester Success.resources/examples
+order: 5000

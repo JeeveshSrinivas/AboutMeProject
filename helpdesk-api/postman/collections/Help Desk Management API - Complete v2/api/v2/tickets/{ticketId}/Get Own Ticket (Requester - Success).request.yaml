@@ -1,0 +1,54 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "30008"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+auth:
+  type: bearer
+  credentials:
+    token: "{{requesterToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Requester can access own ticket\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Correct requester ticket is returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.id).to.eql(30008);\r
+
+      \    pm.expect(data.requesterId).to.eql(4);\r
+
+      \    pm.expect(data.status).to.eql(\"OPEN\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Get Own Ticket (Requester - Success).resources/examples
+order: 9000

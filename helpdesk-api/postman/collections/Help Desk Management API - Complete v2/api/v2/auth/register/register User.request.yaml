@@ -1,0 +1,73 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+        "fullName": "Postman Test Requester",
+        "email": "postman.newrequester@example.com",
+        "password": "{{newRequesterPassword}}"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2147483647
+        }
+      },
+      "required": [
+        "email",
+        "fullName",
+        "password"
+      ]
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Registration successful\", function () {\r
+
+      \    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response contains registered user details\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data).to.be.an(\"object\");\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Registered user has REQUESTER role\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.role).to.eql(\"REQUESTER\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: ./.resources/register User.resources/examples
+order: 8000

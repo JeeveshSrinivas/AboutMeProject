@@ -1,0 +1,57 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "20007"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: text
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{adminToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Admin can retrieve a ticket by ID\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Ticket details are returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data).to.have.property(\"id\");\r
+
+      \    pm.expect(data).to.have.property(\"title\");\r
+
+      \    pm.expect(data).to.have.property(\"status\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: ./.resources/get Ticket By Id.resources/examples
+order: 13000

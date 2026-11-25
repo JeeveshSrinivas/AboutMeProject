@@ -1,0 +1,73 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+        "fullName": "Invalid Email User",
+        "email": "invalid-email",
+        "password": "DummyTestPass123"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2147483647
+        }
+      },
+      "required": [
+        "email",
+        "fullName",
+        "password"
+      ]
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Invalid email registration is rejected\", function () {\r
+
+      \    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Error response contains an error\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.error).to.be.a(\"string\").and.not.empty;\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Error response contains a message\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.message).to.be.a(\"string\").and.not.empty;\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/register User (Invalid Email).resources/examples
+order: 4000

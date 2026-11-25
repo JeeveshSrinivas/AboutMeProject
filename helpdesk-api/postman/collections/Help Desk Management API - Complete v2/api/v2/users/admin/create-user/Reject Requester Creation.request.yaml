@@ -1,0 +1,81 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/users/admin/create-user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "Rejected Requester",
+      "email": "rejected.requester@example.com",
+      "password": "Requester@123",
+      "role": "REQUESTER"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2147483647
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "REQUESTER",
+            "AGENT",
+            "ADMIN"
+          ]
+        }
+      },
+      "required": [
+        "email",
+        "fullName",
+        "password",
+        "role"
+      ]
+    }
+auth:
+  type: inherit
+  credentials:
+    id: 664f6948-ea6e-41ec-8d23-09b37a6dac99
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"REQUESTER creation is rejected\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Correct rejection message is returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.message).to.eql(\r
+
+      \        \"Only AGENT or ADMIN accounts can be created here\"\r
+
+      \    );\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Reject Requester Creation.resources/examples
+order: 7000

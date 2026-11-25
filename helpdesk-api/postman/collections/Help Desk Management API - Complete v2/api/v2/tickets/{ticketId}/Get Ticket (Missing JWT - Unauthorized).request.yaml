@@ -1,0 +1,36 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "30008"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Missing token returns 401\", function () {\r
+
+      \    pm.response.to.have.status(401);\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Get Ticket (Missing JWT - Unauthorized).resources/examples
+order: 12000

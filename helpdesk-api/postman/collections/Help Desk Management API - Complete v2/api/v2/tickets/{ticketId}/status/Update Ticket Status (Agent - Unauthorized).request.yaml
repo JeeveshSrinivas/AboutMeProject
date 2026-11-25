@@ -1,0 +1,34 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/status?status=IN_PROGRESS"
+method: PATCH
+queryParams:
+  status: IN_PROGRESS
+pathVariables:
+  ticketId: "30007"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 401 Unauthorized\", function () {\r
+
+      \    pm.response.to.have.status(401);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response body is empty\", function () {\r
+
+      \    pm.expect(pm.response.text()).to.be.empty;\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response status text is Unauthorized\", function () {\r
+
+      \    pm.expect(pm.response.status).to.eql(\"Unauthorized\");\r
+
+      });"
+    language: text/javascript
+order: 4000

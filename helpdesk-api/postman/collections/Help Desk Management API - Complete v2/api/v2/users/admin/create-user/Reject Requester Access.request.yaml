@@ -1,0 +1,73 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/users/admin/create-user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "Demo Agent",
+      "email": "demo.agent@example.com",
+      "password": "DemoAgent@123",
+      "role": "AGENT"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2147483647
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "REQUESTER",
+            "AGENT",
+            "ADMIN"
+          ]
+        }
+      },
+      "required": [
+        "email",
+        "fullName",
+        "password",
+        "role"
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{requesterToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"REQUESTER is forbidden from creating privileged users\", function () {\r
+
+      \    pm.response.to.have.status(403);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Forbidden response is returned\", function () {\r
+
+      \    pm.expect(pm.response.code).to.eql(403);\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Reject Requester Access.resources/examples
+order: 3875

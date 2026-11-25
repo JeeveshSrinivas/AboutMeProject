@@ -1,0 +1,54 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "2"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+auth:
+  type: bearer
+  credentials:
+    token: "{{agentToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Agent can access assigned ticket\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Correct ticket details are returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.id).to.eql(2);\r
+
+      \    pm.expect(data.assignedAgentId).to.eql(5);\r
+
+      \    pm.expect(data.status).to.eql(\"OPEN\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Get Assigned Ticket (Agent - Success).resources/examples
+order: 4000

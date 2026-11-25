@@ -1,0 +1,72 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/assign"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "2"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: json
+  content: |-
+    {
+      "agentId": 8
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "required": [
+        "agentId"
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{agentToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Agent self-assignment succeeds\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Agent cannot assign ticket to agent 8\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.assignedAgentId).to.not.eql(8);\r
+
+      \    pm.expect(data.status).to.eql(\"OPEN\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Assign Ticket (Agent - Cannot Assign Others).resources/examples
+order: 1000

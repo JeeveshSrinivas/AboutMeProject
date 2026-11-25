@@ -1,0 +1,72 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+        "fullName": "Missing Email User",
+        "password": "DummyTestPass123"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2147483647
+        }
+      },
+      "required": [
+        "email",
+        "fullName",
+        "password"
+      ]
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 400 Bad Request\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Validation error is returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.error).to.eql(\"Validation Failed\");\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Email required message is returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.message.toLowerCase()).to.include(\"email\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/register User (Missing Email).resources/examples
+order: 7395

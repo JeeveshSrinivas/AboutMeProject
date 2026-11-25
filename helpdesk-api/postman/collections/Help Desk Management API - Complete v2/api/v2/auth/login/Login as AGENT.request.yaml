@@ -1,0 +1,112 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+        "email": "{{agentEmail}}",
+        "password": "{{agentPassword}}"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "email",
+        "password"
+      ]
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "const response = pm.response.json();\r
+
+      \r
+
+      if (pm.response.code === 200 && response.token && response.user) {\r
+
+      \    const role = response.user.role;\r
+
+      \r
+
+      \    if (role === \"ADMIN\") {\r
+
+      \        pm.collectionVariables.set(\"adminToken\", response.token);\r
+
+      \    } \r
+
+      \    else if (role === \"AGENT\") {\r
+
+      \        pm.collectionVariables.set(\"agentToken\", response.token);\r
+
+      \    } \r
+
+      \    else if (role === \"REQUESTER\") {\r
+
+      \        pm.collectionVariables.set(\"requesterToken\", response.token);\r
+
+      \    }\r
+
+      \r
+
+      \    console.log(\"JWT token saved for role:\", role);\r
+
+      }\r
+
+      \r
+
+      pm.test(\"Login successful\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"JWT access token is returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.token).to.be.a(\"string\").and.not.empty;\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Authenticated user has AGENT role\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.user.role).to.eql(\"AGENT\");\r
+
+      });\r
+
+      \r
+
+      if (pm.response.code === 200) {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.collectionVariables.set(\"expiredTestToken\", data.token);\r
+
+      }"
+    language: text/javascript
+settings: {}
+examples: .resources/Login as AGENT.resources/examples
+order: 2000

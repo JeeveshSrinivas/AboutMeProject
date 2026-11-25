@@ -1,0 +1,64 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+        "email": "unknown.user@example.com",
+        "password": "InvalidTestPassword123"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "email",
+        "password"
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Invalid login returns 401\", function () {\r
+
+      \    pm.response.to.have.status(401);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Error response contains an error\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.error).to.be.a(\"string\").and.not.empty;\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Error response contains a safe message\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.message).to.be.a(\"string\").and.not.empty;\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Login (Unregistered Email).resources/examples
+order: 4007

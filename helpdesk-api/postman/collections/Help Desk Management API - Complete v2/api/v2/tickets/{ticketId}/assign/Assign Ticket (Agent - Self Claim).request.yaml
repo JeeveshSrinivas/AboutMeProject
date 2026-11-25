@@ -1,0 +1,35 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v2/tickets/10004/assign"
+method: PATCH
+queryParams:
+  - key: ""
+    value: null
+    disabled: true
+    description: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{agentToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Agent can claim an unassigned OPEN ticket\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Ticket is assigned to an agent\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.assignedAgentId).to.not.be.null;\r
+
+      \    pm.expect(data.status).to.eql(\"OPEN\");\r
+
+      });"
+    language: text/javascript
+order: 8000

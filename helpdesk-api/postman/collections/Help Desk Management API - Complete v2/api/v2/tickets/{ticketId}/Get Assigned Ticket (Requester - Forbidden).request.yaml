@@ -1,0 +1,51 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId"
+method: GET
+headers:
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "2"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+auth:
+  type: bearer
+  credentials:
+    token: "{{requesterToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Requester cannot access another user's ticket\", function ()
+      {\r
+
+      \    pm.response.to.have.status(403);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Forbidden error is returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.error).to.eql(\"Forbidden\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Get Assigned Ticket (Requester - Forbidden).resources/examples
+order: 5000

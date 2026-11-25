@@ -1,0 +1,63 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/users/admin/create-user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "Demo Agent",
+      "email": "demo.agent@example.com",
+      "password": "DemoAgent@123",
+      "role": "AGENT"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2147483647
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "REQUESTER",
+            "AGENT",
+            "ADMIN"
+          ]
+        }
+      },
+      "required": [
+        "email",
+        "fullName",
+        "password",
+        "role"
+      ]
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Unauthenticated request is rejected\", function () {\r
+
+      \    pm.response.to.have.status(401);\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Reject Unauthorized Request.resources/examples
+order: 2000

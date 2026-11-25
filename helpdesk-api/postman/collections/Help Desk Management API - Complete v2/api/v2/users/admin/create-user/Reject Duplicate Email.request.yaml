@@ -1,0 +1,81 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/users/admin/create-user"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "Duplicate Agent",
+      "email": "demo.agent@example.com",
+      "password": "DuplicateAgent@123",
+      "role": "AGENT"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 2147483647
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "REQUESTER",
+            "AGENT",
+            "ADMIN"
+          ]
+        }
+      },
+      "required": [
+        "email",
+        "fullName",
+        "password",
+        "role"
+      ]
+    }
+auth:
+  type: inherit
+  credentials:
+    id: 664f6948-ea6e-41ec-8d23-09b37a6dac99
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Duplicate email is rejected\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Correct duplicate email message is returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.message).to.eql(\r
+
+      \        \"Email is already registered\"\r
+
+      \    );\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Reject Duplicate Email.resources/examples
+order: 1000

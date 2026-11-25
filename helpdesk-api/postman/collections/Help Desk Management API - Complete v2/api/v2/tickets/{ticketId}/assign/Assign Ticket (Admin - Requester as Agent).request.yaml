@@ -1,0 +1,72 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/assign"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "10006"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: json
+  content: |-
+    {
+      "agentId": 4
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "required": [
+        "agentId"
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{adminToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Admin cannot assign a requester as an agent\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Correct invalid agent role error is returned\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.message).to.eql(\"Selected user is not an agent\");\r
+
+      });\r
+
+      \r\n"
+    language: text/javascript
+settings: {}
+examples: .resources/Assign Ticket (Admin - Requester as Agent).resources/examples
+order: 2000

@@ -1,0 +1,42 @@
+$kind: http-request
+name: Update Ticket Status (Agent - Resolve Success)
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/status?status=RESOLVED"
+method: PATCH
+queryParams:
+  status: RESOLVED
+pathVariables:
+  ticketId: "30007"
+auth:
+  type: bearer
+  credentials:
+    token: "{{agentToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 400 Bad Request\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Error response contains a message\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.message).to.be.a(\"string\").and.not.empty;\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Ticket transition is rejected\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \    pm.expect(data.message).to.include(\"Cannot change ticket
+      status\");\r
+
+      });"
+    language: text/javascript
+order: 7000

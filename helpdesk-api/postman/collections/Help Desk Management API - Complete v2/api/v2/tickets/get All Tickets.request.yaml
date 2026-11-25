@@ -1,0 +1,100 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets?page=0&size=10"
+method: GET
+headers:
+  Accept: "*/*"
+queryParams:
+  - key: status
+    value: RESOLVED
+    disabled: true
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "IN_PROGRESS",
+              "RESOLVED",
+              "CLOSED"
+            ]
+          }
+        }
+      }
+  - key: priority
+    value: HIGH
+    disabled: true
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          }
+        }
+      }
+  - key: page
+    value: "0"
+    disabled: false
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        }
+      }
+  - key: size
+    value: "10"
+    disabled: false
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          }
+        }
+      }
+body:
+  type: text
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{adminToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Admin can retrieve all tickets\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response is returned successfully\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(5000);\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: ./.resources/get All Tickets.resources/examples
+order: 1000

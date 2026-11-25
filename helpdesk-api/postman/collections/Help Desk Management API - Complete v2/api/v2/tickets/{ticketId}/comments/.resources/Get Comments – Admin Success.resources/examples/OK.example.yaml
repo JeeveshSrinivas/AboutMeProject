@@ -1,0 +1,67 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v2/tickets/:ticketId/comments"
+  method: GET
+  headers:
+    - key: Accept
+      value: "*/*"
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  pathVariables:
+    ticketId: "5690"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: "*/*"
+  body:
+    type: text
+    content: |-
+      [
+        {
+          "id": "string",
+          "ticketId": 5838,
+          "authorId": 662,
+          "message": "string",
+          "createdAt": "1996-03-22T12:42:34.586Z"
+        },
+        {
+          "id": "string",
+          "ticketId": 5734,
+          "authorId": 9844,
+          "message": "string",
+          "createdAt": "1997-02-16T17:37:43.336Z"
+        }
+      ]
+    $type: |-
+      {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "ticketId": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "authorId": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "message": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+order: 1000

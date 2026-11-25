@@ -1,0 +1,72 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/v2/tickets/:ticketId/assign"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: "*/*"
+pathVariables:
+  - key: ticketId
+    value: "10004"
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: json
+  content: |-
+    {
+      "agentId": 2
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "required": [
+        "agentId"
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{adminToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Admin can reassign an OPEN ticket\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Ticket is reassigned to the selected agent\", function () {\r
+
+      \    const data = pm.response.json();\r
+
+      \r
+
+      \    pm.expect(data.assignedAgentId).to.eql(2);\r
+
+      \    pm.expect(data.status).to.eql(\"OPEN\");\r
+
+      });"
+    language: text/javascript
+settings: {}
+examples: .resources/Assign Ticket (Admin - Reassign).resources/examples
+order: 3000

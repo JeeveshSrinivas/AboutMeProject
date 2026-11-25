@@ -1,0 +1,30 @@
+$kind: collection
+description: REST API for managing help desk tickets, users, and comments.
+variables:
+  - key: baseUrl
+    value: http://localhost:8081
+    disabled: false
+  - key: adminToken
+    secret: true
+    disabled: false
+  - key: agentToken
+    secret: true
+    disabled: false
+  - key: requesterToken
+    secret: true
+    disabled: false
+  - key: ticketId
+    value: ""
+    disabled: false
+  - key: agentId
+    value: ""
+    disabled: false
+  - key: expiredTestToken
+    value: ""
+    disabled: false
+auth:
+  - id: 664f6948-ea6e-41ec-8d23-09b37a6dac99
+    type: bearer
+    name: Bearer Token
+    credentials:
+      token: "{{adminToken}}"
