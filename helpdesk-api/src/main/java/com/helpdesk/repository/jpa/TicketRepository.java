@@ -13,6 +13,7 @@ import com.helpdesk.enums.TicketStatus;
 
 public interface TicketRepository extends
         JpaRepository<Ticket, Long>,
+        // Supports dynamic query construction and execution based on specifications, allowing for flexible and complex queries.
         JpaSpecificationExecutor<Ticket>  {
 
     List<Ticket> findByStatusInAndDueAtBefore(

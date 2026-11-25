@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+// enables validation of incoming request data.
 import jakarta.validation.Valid;
 
 import com.helpdesk.dto.request.RegisterRequest;
@@ -12,6 +13,7 @@ import com.helpdesk.dto.response.UserResponse;
 import com.helpdesk.dto.response.LoginResponse;
 import com.helpdesk.service.UserService;
 
+// documents that an endpoint requires Bearer authentication in Swagger.
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController

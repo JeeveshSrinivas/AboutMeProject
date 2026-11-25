@@ -5,10 +5,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+
+// filter ordering
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+// http error handling
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
+// method security
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @EnableMethodSecurity
@@ -19,6 +24,7 @@ public class SecurityConfig {
 
         public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
                 this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+                // Because this configuration must insert the JWT filter into Spring Security's filter chain.
         }
 
         @Bean
@@ -46,11 +52,15 @@ public class SecurityConfig {
                                                                 "/v3/api-docs/**")
                                                 .permitAll()
 
-                                                .requestMatchers("/api/v2/**")
+                                                //Protect all API v2 endpoints
+                                                .requestMatchers("/api/v2/**") 
                                                 .authenticated()
 
+                                                // Deny all other requests
                                                 .anyRequest()
                                                 .denyAll())
+
+                                                //return 401 when authentication is missing 
                                 .exceptionHandling(exception -> exception
                                                 .authenticationEntryPoint(
                                                                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

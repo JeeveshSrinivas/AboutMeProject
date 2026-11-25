@@ -65,12 +65,22 @@ void shouldRejectRevokedToken() throws ServletException, IOException {
     jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
     // Assert
+    // Executes the real JWT filter.
     assertEquals(401, response.getStatus());
+    // Checks that the filter returns HTTP 401 Unauthorized.
+
     assertNull(SecurityContextHolder.getContext().getAuthentication());
+    // Ensures that the security context remains unauthenticated.
+    
     assertNull(filterChain.getRequest());
 
+
+    //  verify() checks whether a particular method was called.
+    //  never() checks that a method was not called.
     verify(revokedTokenRepository).existsById(tokenId);
     verify(jwtService, never()).extractRole(token);
+
+    // filter checked the revocation status and did not proceed to extract the user's role.
 }
 
 @Test

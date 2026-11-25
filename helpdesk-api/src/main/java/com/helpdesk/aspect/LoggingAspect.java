@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggingAspect {
 
+    // It allows you to write messages to the application logs
     private static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
 
     private final UserRepository userRepository;

@@ -74,23 +74,37 @@ public class TicketController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('AGENT')")
-    @PatchMapping("/{ticketId}/claim")
-    public ResponseEntity<TicketResponse> claimTicket(
-            @PathVariable Long ticketId) {
+    // @PreAuthorize("hasRole('AGENT')")
+    // @PatchMapping("/{ticketId}/claim")
+    // public ResponseEntity<TicketResponse> claimTicket(
+    //         @PathVariable Long ticketId) {
 
-        TicketResponse response = ticketService.claimTicket(ticketId);
+    //     TicketResponse response = ticketService.claimTicket(ticketId);
 
-        return ResponseEntity.ok(response);
-    }
+    //     return ResponseEntity.ok(response);
+    // }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // @PatchMapping("/{ticketId}/assign")
+    // public ResponseEntity<TicketResponse> assignAgent(
+    //         @PathVariable Long ticketId,
+    //         @Valid @RequestBody AssignAgentRequest request) {
+
+    //     TicketResponse response = ticketService.assignAgent(ticketId, request);
+
+    //     return ResponseEntity.ok(response);
+    // }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN','AGENT')")
     @PatchMapping("/{ticketId}/assign")
     public ResponseEntity<TicketResponse> assignAgent(
             @PathVariable Long ticketId,
-            @Valid @RequestBody AssignAgentRequest request) {
+            @Valid @RequestBody(required = false) AssignAgentRequest request) {
 
-        TicketResponse response = ticketService.assignAgent(ticketId, request);
+            Long agentId = (request == null) ? null : request.getAgentId();
+
+        TicketResponse response = ticketService.assignTicket(ticketId, agentId);
 
         return ResponseEntity.ok(response);
     }

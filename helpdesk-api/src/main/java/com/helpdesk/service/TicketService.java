@@ -131,110 +131,182 @@ public class TicketService {
                 return ticketMapper.toResponse(ticket);
         }
 
-        @Transactional
-        public TicketResponse claimTicket(Long ticketId) {
+        // @Transactional
+        // public TicketResponse claimTicket(Long ticketId) {
 
-                // Get the logged-in agent
+        //         // Get the logged-in agent
+        //         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //         Long userId = Long.parseLong(authentication.getName());
+
+        //         User agent = userRepository.findById(userId)
+        //                         .orElseThrow(() -> new RuntimeException("Agent not found"));
+
+        //         if (agent.getRole() != com.helpdesk.enums.UserRole.AGENT) {
+        //                 throw new IllegalArgumentException(
+        //                                 "Only agents can claim tickets");
+        //         }
+
+        //         // Find the ticket
+        //         Ticket ticket = ticketRepository.findById(ticketId)
+        //                         .orElseThrow(() -> new RuntimeException("Ticket not found with ID: " + ticketId));
+
+        //         // Check whether the ticket is already assigned
+        //         if (ticket.getAssignedAgent() != null) {
+        //                 throw new IllegalArgumentException(
+        //                                 "Ticket is already assigned to an agent");
+        //         }
+
+        //         // Only OPEN tickets can be claimed
+        //         if (ticket.getStatus() != TicketStatus.OPEN) {
+        //                 throw new IllegalArgumentException(
+        //                                 "Only OPEN tickets can be claimed");
+        //         }
+
+        //         // Assign the ticket to the logged-in agent
+        //         ticket.setAssignedAgent(agent);
+
+        //         Ticket updatedTicket = ticketRepository.save(ticket);
+
+        //         // Record the assignment activity
+        //         eventPublisher.publishEvent(
+        //                         new TicketActivityEvent(
+        //                                         updatedTicket.getId(),
+        //                                         agent.getId(),
+        //                                         agent.getRole().name(),
+        //                                         "TICKET_CLAIMED",
+        //                                         "Ticket claimed by agent: " + agent.getEmail(),
+        //                                         "USER"));
+
+        //         return ticketMapper.toResponse(updatedTicket);
+        // }
+
+        @Transactional 
+        public TicketResponse assignTicket (Long ticketId, Long agentId) {
+
+                // Get the logged-in admin
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
                 Long userId = Long.parseLong(authentication.getName());
 
-                User agent = userRepository.findById(userId)
-                                .orElseThrow(() -> new RuntimeException("Agent not found"));
+                User currentUser = userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
 
-                if (agent.getRole() != com.helpdesk.enums.UserRole.AGENT) {
+                if (currentUser.getRole() != com.helpdesk.enums.UserRole.ADMIN && currentUser.getRole() != com.helpdesk.enums.UserRole.AGENT) {
                         throw new IllegalArgumentException(
-                                        "Only agents can claim tickets");
-                }
-
+                                        "Only admins and agents can assign tickets");
+                        }
                 // Find the ticket
                 Ticket ticket = ticketRepository.findById(ticketId)
                                 .orElseThrow(() -> new RuntimeException("Ticket not found with ID: " + ticketId));
 
-                // Check whether the ticket is already assigned
+                if(ticket.getStatus() == TicketStatus.RESOLVED || ticket.getStatus() == TicketStatus.CLOSED) {
+                        throw new IllegalArgumentException(
+                                        "Cannot assign an agent to a resolved or closed ticket");
+                }
+
+                                User agent;
+                                String action;
+                                String details;
+
+                if (currentUser.getRole() == com.helpdesk.enums.UserRole.AGENT) {
+
                 if (ticket.getAssignedAgent() != null) {
                         throw new IllegalArgumentException(
                                         "Ticket is already assigned to an agent");
                 }
 
-                // Only OPEN tickets can be claimed
-                if (ticket.getStatus() != TicketStatus.OPEN) {
-                        throw new IllegalArgumentException(
-                                        "Only OPEN tickets can be claimed");
-                }
 
-                // Assign the ticket to the logged-in agent
-                ticket.setAssignedAgent(agent);
+                agent = currentUser;
+                action = "TICKET_CLAIMED";
+                details = "Ticket claimed by agent: " + agent.getEmail();
 
-                Ticket updatedTicket = ticketRepository.save(ticket);
+        } else{
+                
 
-                // Record the assignment activity
-                eventPublisher.publishEvent(
-                                new TicketActivityEvent(
-                                                updatedTicket.getId(),
-                                                agent.getId(),
-                                                agent.getRole().name(),
-                                                "TICKET_CLAIMED",
-                                                "Ticket claimed by agent: " + agent.getEmail(),
-                                                "USER"));
+                agent = userRepository.findById(agentId)
+                                .orElseThrow(() -> new RuntimeException("Agent not found with ID: " + agentId));
+        
 
-                return ticketMapper.toResponse(updatedTicket);
+        if (agent.getRole() != com.helpdesk.enums.UserRole.AGENT) {
+                throw new IllegalArgumentException("Selected user is not an agent");
         }
-
-        @Transactional
-        public TicketResponse assignAgent(Long ticketId, AssignAgentRequest request) {
-
-                // Get the logged-in admin
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-                Long adminId = Long.parseLong(authentication.getName());
-
-                User admin = userRepository.findById(adminId)
-                                .orElseThrow(() -> new RuntimeException("Admin not found"));
-
-                if (admin.getRole() != com.helpdesk.enums.UserRole.ADMIN) {
-                        throw new IllegalArgumentException(
-                                        "Only admins can assign tickets");
-                }
-
-                // Find the ticket
-                Ticket ticket = ticketRepository.findById(ticketId)
-                                .orElseThrow(() -> new RuntimeException("Ticket not found with ID: " + ticketId));
-
-                // Prevent assigning agents to completed tickets
-                if (ticket.getStatus() == TicketStatus.RESOLVED ||
-                                ticket.getStatus() == TicketStatus.CLOSED) {
-                        throw new IllegalArgumentException(
-                                        "Cannot assign an agent to a resolved or closed ticket");
-                }
-
-                // Find the selected agent
-                User agent = userRepository.findById(request.getAgentId())
-                                .orElseThrow(() -> new RuntimeException(
-                                                "Agent not found with ID: " + request.getAgentId()));
-
-                // Ensure the selected user is actually an agent
-                if (agent.getRole() != com.helpdesk.enums.UserRole.AGENT) {
-                        throw new IllegalArgumentException("Selected user is not an agent");
-                }
+        action = "AGENT_ASSIGNED";
+        details = "Ticket assigned to agent:" + agent.getEmail();
+        }
 
                 // Assign the agent
-                ticket.setAssignedAgent(agent);
 
+                ticket.setAssignedAgent(agent);
                 Ticket updatedTicket = ticketRepository.save(ticket);
 
                 // Record the assignment activity
                 eventPublisher.publishEvent(
                                 new TicketActivityEvent(
                                                 updatedTicket.getId(),
-                                                admin.getId(),
-                                                admin.getRole().name(),
-                                                "AGENT_ASSIGNED",
-                                                "Ticket assigned to agent: " + agent.getEmail(),
+                                                currentUser.getId(),
+                                                currentUser.getRole().name(),
+                                                action,
+                                                details,
                                                 "USER"));
 
                 return ticketMapper.toResponse(updatedTicket);
         }
+
+        // @Transactional
+        // public TicketResponse assignAgent(Long ticketId, AssignAgentRequest request) {
+
+        //         // Get the logged-in admin
+        //         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //         Long adminId = Long.parseLong(authentication.getName());
+
+        //         User admin = userRepository.findById(adminId)
+        //                         .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        //         if (admin.getRole() != com.helpdesk.enums.UserRole.ADMIN) {
+        //                 throw new IllegalArgumentException(
+        //                                 "Only admins can assign tickets");
+        //         }
+
+        //         // Find the ticket
+        //         Ticket ticket = ticketRepository.findById(ticketId)
+        //                         .orElseThrow(() -> new RuntimeException("Ticket not found with ID: " + ticketId));
+
+        //         // Prevent assigning agents to completed tickets
+        //         if (ticket.getStatus() == TicketStatus.RESOLVED ||
+        //                         ticket.getStatus() == TicketStatus.CLOSED) {
+        //                 throw new IllegalArgumentException(
+        //                                 "Cannot assign an agent to a resolved or closed ticket");
+        //         }
+
+        //         // Find the selected agent
+        //         User agent = userRepository.findById(request.getAgentId())
+        //                         .orElseThrow(() -> new RuntimeException(
+        //                                         "Agent not found with ID: " + request.getAgentId()));
+
+        //         // Ensure the selected user is actually an agent
+        //         if (agent.getRole() != com.helpdesk.enums.UserRole.AGENT) {
+        //                 throw new IllegalArgumentException("Selected user is not an agent");
+        //         }
+
+        //         // Assign the agent
+        //         ticket.setAssignedAgent(agent);
+
+        //         Ticket updatedTicket = ticketRepository.save(ticket);
+
+        //         // Record the assignment activity
+        //         eventPublisher.publishEvent(
+        //                         new TicketActivityEvent(
+        //                                         updatedTicket.getId(),
+        //                                         admin.getId(),
+        //                                         admin.getRole().name(),
+        //                                         "AGENT_ASSIGNED",
+        //                                         "Ticket assigned to agent: " + agent.getEmail(),
+        //                                         "USER"));
+
+        //         return ticketMapper.toResponse(updatedTicket);
+        // }
 
         @Transactional(readOnly = true)
         public PageResponse<TicketResponse> getAllTickets(

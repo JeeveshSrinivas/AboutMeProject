@@ -1,6 +1,8 @@
 package com.helpdesk.advice;
 
 import java.time.LocalDateTime;
+
+// Combines validation error messages
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import com.helpdesk.dto.response.ErrorResponse;
 import com.helpdesk.exception.InvalidTicketTransitionException;
 import com.helpdesk.exception.InvalidCredentialsException;
 
+// Provide application logging
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
